@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Learnly</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Improved styling for contact section icons to fill their containers */
+        .contact-section .icon-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%; /* Ensure the icon box takes full width */
+            height: 100%; /* Ensure the icon box takes full height */
+            padding: 15px; /* Add padding for spacing */
+            box-sizing: border-box; /* Include padding in the element's total width and height */
+        }
+        .contact-section .icon-box i {
+            font-size: 2em; /* Adjust icon size as needed */
+            color: #fff; /* Example color, adjust as per your theme */
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="bg-animation"></div>
+
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="logo">Learnly</div>
+            <nav class="navigation">
+                <a href="#home" class="nav-link active" data-section="home">
+                    <i class="fas fa-home"></i> Home
+                </a>
+               <!-- <a href="#courses" class="nav-link" data-section="courses">
+                    <i class="fas fa-book"></i> Courses
+                </a>-->
+                <a href="#doubts" class="nav-link" data-section="doubts">
+                    <i class="fas fa-question-circle"></i> Ask Doubt
+                </a>
+                <a href="#profile" class="nav-link" data-section="profile">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+              <!--  <a href="#view-profile" class="nav-link" data-section="view-profile">
+                    <i class="fas fa-id-card"></i> View Profile
+                </a>-->
+            </nav>
+            <div class="user-actions">
+                <div class="user-info">
+                    <span id="userName">Loading...</span>
+                </div>
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Home Section -->
+        <section id="home-section" class="dashboard-section active">
+            <div class="container">
+                <div class="welcome-banner">
+                    <div class="welcome-content">
+                        <h1>Welcome Back, <span id="welcomeName">Student</span>!</h1>
+                        <p>Continue your learning journey with Learnly</p>
+                    </div>
+                    <div class="profile-avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+
+                <!-- Welcome message area - stats removed as requested -->
+
+                <!-- Quick Actions -->
+                <div class="quick-actions-section">
+                    <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="window.location.href='/sub.html'">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Subscribe</span>
+                        </button>
+                        <button id="askDoubtBtn" class="action-btn doubt-btn">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Ask Doubt</span>
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='/connect-teacher.html'">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Connect to Teacher</span>
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='/doubt-responses.html'">
+                            <i class="fas fa-comments"></i>
+                            <span>Response of Doubt</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Subscription Status -->
+                <div class="subscription-card">
+                    <h2><i class="fas fa-crown"></i> Subscription Status</h2>
+                    <div id="subscriptionLoading" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Checking status...
+                    </div>
+                    <div id="subscriptionStatus"></div>
+                </div>
+
+                <!-- Recent Doubts Asked -->
+                <div class="activity-card">
+                    <h2><i class="fas fa-question-circle"></i> Recent Doubts Asked</h2>
+                    <div id="recentDoubtsActivityLoading" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading recent doubts...
+                    </div>
+                    <div id="recentDoubtsActivityList" class="activity-list">
+                        <!-- Recent doubts will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="courses-section" class="dashboard-section">
+            <div class="container">
+                <h1>My Courses</h1>
+                <div class="courses-grid">
+                    <div class="course-card">
+                        <div class="course-image">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="course-content">
+                            <h3>Mathematics</h3>
+                            <p>Advanced calculus and algebra</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 85%;"></div>
+                            </div>
+                            <span class="progress-text">85% Complete</span>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="course-image">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <div class="course-content">
+                            <h3>Physics</h3>
+                            <p>Mechanics and thermodynamics</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 70%;"></div>
+                            </div>
+                            <span class="progress-text">70% Complete</span>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="course-image">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="course-content">
+                            <h3>Chemistry</h3>
+                            <p>Organic and inorganic chemistry</p>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 60%;"></div>
+                            </div>
+                            <span class="progress-text">60% Complete</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Doubts Section -->
+        <section id="doubts-section" class="dashboard-section">
+            <div class="container">
+                <h1>Ask Your Doubts</h1>
+                <div id="doubtAccessMessage" class="doubt-access-denied">
+                    <div class="access-denied-content">
+                        <i class="fas fa-lock"></i>
+                        <h3>Access Restricted</h3>
+                        <p>Please complete your subscription payment and wait for admin approval to access doubt solving features.</p>
+                        <button onclick="window.location.href='/sub.html'" class="subscribe-btn">
+                            Subscribe Now
+                        </button>
+                    </div>
+                </div>
+                <div id="doubtForm" class="doubt-form-container" style="display: none;">
+                    <div class="doubt-form-card">
+                        <h3>Submit Your Doubt</h3>
+                        <form id="doubtSubmissionForm">
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <select id="doubtSubject" required>
+                                    <option value="">Select Subject</option>
+                                    <option value="Mathematics">Mathematics</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Chemistry">Chemistry</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Question</label>
+                                <textarea id="doubtQuestion" placeholder="Describe your doubt in detail..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Attach Image (Optional)</label>
+                                <input type="file" id="doubtImage" accept="image/*">
+                            </div>
+                            <button type="submit" class="submit-doubt-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                Submit Doubt
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile-section" class="dashboard-section">
+            <div class="container">
+                <h1>My Profile</h1>
+                <div class="profile-content">
+                    <div class="profile-card-large">
+                        <div class="profile-header">
+                            <div class="profile-picture-container">
+                                <div class="profile-avatar-large" id="profileAvatar" onclick="document.getElementById('profilePictureUpload').click()" style="cursor: pointer;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <button class="upload-picture-btn" onclick="document.getElementById('profilePictureUpload').click()">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                                <input type="file" id="profilePictureUpload" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="profile-info">
+                                <h2 id="profileName">Student Name</h2>
+                                <p id="profileEmail">student@example.com</p>
+                                <p id="profilePhone">+91 XXXXXXXXXX</p>
+                                <span class="user-badge">Student</span>
+                            </div>
+                        </div>
+                       <!-- <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">12</span>
+                                <span class="stat-label">Courses</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">156</span>
+                                <span class="stat-label">Hours</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">24</span>
+                                <span class="stat-label">Achievements</span>
+                            </div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- View Profile Section -->
+        <section id="view-profile-section" class="dashboard-section">
+            <div class="container">
+                <h1>View Profile</h1>
+                <div class="profile-content">
+                    <div class="profile-card-large">
+                        <div class="profile-header">
+                            <div class="profile-picture-container">
+                                <div class="profile-picture" id="viewProfilePicture">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <button class="upload-picture-btn" onclick="document.getElementById('profilePictureUpload').click()">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                                <input type="file" id="profilePictureUpload" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="profile-info">
+                                <h2 id="viewProfileName">Student Name</h2>
+                                <p id="viewProfileEmail">student@example.com</p>
+                                <p id="viewProfilePhone">+91 XXXXXXXXXX</p>
+                                <p id="viewProfileJoined">Joined: January 2024</p>
+                                <span class="user-badge">Student</span>
+                            </div>
+                        </div>
+                        <div class="profile-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Subscription Status:</span>
+                                <span class="detail-value" id="viewSubscriptionStatus">Active</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Total Doubts Asked:</span>
+                                <span class="detail-value" id="viewTotalDoubts">5</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Doubts Resolved:</span>
+                                <span class="detail-value" id="viewResolvedDoubts">3</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Learning Streak:</span>
+                                <span class="detail-value" id="viewLearningStreak">15 days</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script src="security.js"></script>
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>

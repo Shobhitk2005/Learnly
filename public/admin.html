@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnly - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .payment-details p {
+            margin: 5px 0;
+        }
+
+        .status.approved {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status.rejected {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .status.pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .status.uploaded {
+            color: #28a745;
+        }
+
+        .status.not-uploaded {
+            color: #dc3545;
+        }
+
+        .no-proof {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            padding: 20px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .no-data {
+            color: #6c757d;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .admin-header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .admin-tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: #f8f9fa;
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .user-card, .payment-card, .doubt-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .user-card:hover, .payment-card:hover, .doubt-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-card h3, .payment-card h3, .doubt-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .user-card p, .payment-card p, .doubt-card p {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status.active, .status.approved, .status.enabled {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.inactive, .status.rejected, .status.disabled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .user-actions, .payment-actions, .doubt-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-toggle, .btn-approve, .btn-reject, .btn-view, .btn-respond, .btn-resolve {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-toggle:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c82333;
+        }
+
+        .btn-view, .btn-respond {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-view:hover, .btn-respond:hover {
+            background: #138496;
+        }
+
+        .btn-resolve {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-resolve:hover {
+            background: #e0a800;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+            font-size: 18px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .admin-tabs {
+                flex-direction: column;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .user-actions, .payment-actions, .doubt-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Learnly Admin Panel</h1>
+            <p>Manage students, payments, and doubts</p>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="showSection('users')">
+                👥 Users
+            </button>
+            <button class="tab-btn" onclick="showSection('payments')">
+                💳 Payments
+            </button>
+            <button class="tab-btn" onclick="showSection('doubts')">
+                ❓ Doubts
+            </button>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users" class="admin-section active">
+            <div class="section-header">
+                <h2 class="section-title">👥 User Management</h2>
+                <button class="refresh-btn" onclick="loadUsers()">🔄 Refresh</button>
+            </div>
+            <div id="users-list" class="loading">
+                Loading users...
+            </div>
+        </div>
+
+        <!-- Payments Section -->
+        <div id="payments" class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">💳 Payment Management</h2>
+                <button class="refresh-btn" onclick="loadPayments()">🔄 Refresh</button>
+            </div>
+            <div id="payments-list" class="loading">
+                Loading payments...
+            </div>
+        </div>
+
+        <!-- Doubts Section -->
+        <div id="doubts" class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">❓ Doubt Management</h2>
+                <button class="refresh-btn" onclick="loadDoubts()">🔄 Refresh</button>
+            </div>
+            <div id="doubts-list" class="loading">
+                Loading doubts...
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

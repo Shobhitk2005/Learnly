@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask Doubt - Learnly</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 50%, #fdba74 100%);
+            min-height: 100vh;
+            color: #c2410c;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 5%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.3);
+            z-index: 999;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #f97316;
+            text-decoration: none;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 30px;
+        }
+
+        .navigation a {
+            color: #c2410c;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .navigation a:hover,
+        .navigation a.active {
+            color: #ea580c;
+        }
+
+        .back-btn {
+            background: #f97316;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+            background: #ea580c;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 40px 20px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 900;
+            color: #f97316;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #ea580c;
+            margin-bottom: 50px;
+        }
+
+        /* Access Status */
+        .access-status {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center;
+            border: 2px solid #f97316;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .access-denied {
+            border-color: #ef4444;
+        }
+
+        .access-granted {
+            border-color: #10b981;
+        }
+
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .status-icon.denied {
+            color: #ef4444;
+        }
+
+        .status-icon.granted {
+            color: #10b981;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .status-message {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        /* Doubt Form */
+        .doubt-form-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .doubt-form-container.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            color: #f97316;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(249, 115, 22, 0.3);
+            border-radius: 12px;
+            padding: 12px 15px;
+            color: #c2410c;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #ea580c;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid #a855f7;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-wrapper:hover {
+            background: rgba(168, 85, 247, 0.3);
+            border-color: #c084fc;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #9a3412;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Upgrade Section */
+        .upgrade-section {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.1));
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(135deg, #ea580c, #f97316);
+            color: #9a3412;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .upgrade-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Recent Doubts */
+        .recent-doubts {
+            margin-top: 50px;
+        }
+
+        .recent-doubts h3 {
+            color: #f97316;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .doubt-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ea580c;
+        }
+
+        .doubt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .doubt-subject {
+            color: #f97316;
+            font-weight: 600;
+        }
+
+        .doubt-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-answered {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .navigation {
+                display: none;
+            }
+
+            .container {
+                padding: 100px 15px 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+
+    <div class="container">
+        <a href="/dashboard" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; padding: 0.8rem 1.5rem; background: linear-gradient(135deg, #f97316, #ea580c); color: white; text-decoration: none; border-radius: 10px; font-weight: 600; transition: all 0.3s ease;">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <h1 class="page-title">Ask Doubt</h1>
+        <p class="page-subtitle">Get instant help from our expert teachers</p>
+
+        <!-- Access Status -->
+        <div class="access-status" id="accessStatus">
+            <div class="status-icon" id="statusIcon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="status-title" id="statusTitle">Access Pending</h3>
+            <p class="status-message" id="statusMessage">Your payment is being verified. Once approved by admin, you'll have full access to ask doubts.</p>
+        </div>
+
+        <!-- Doubt Form -->
+        <div class="doubt-form-container disabled" id="doubtFormContainer">
+            <form id="doubtForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="subject">
+                            <i class="fas fa-book"></i>
+                            Subject
+                        </label>
+                        <select id="subject" required>
+                            <option value="">Select Subject</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="physics">Physics</option>
+                            <option value="chemistry">Chemistry</option>
+                            <option value="biology">Biology</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="english">English</option>
+                            <option value="social-studies">Social Studies</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grade">
+                            <i class="fas fa-graduation-cap"></i>
+                            Grade/Class
+                        </label>
+                        <select id="grade" required>
+                            <option value="">Select Grade</option>
+                            <option value="6">Class 6</option>
+                            <option value="7">Class 7</option>
+                            <option value="8">Class 8</option>
+                            <option value="9">Class 9</option>
+                            <option value="10">Class 10</option>
+                            <option value="11">Class 11</option>
+                            <option value="12">Class 12</option>
+                            <option value="ug">Undergraduate</option>
+                            <option value="pg">Postgraduate</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="urgency">
+                            <i class="fas fa-clock"></i>
+                            Urgency Level
+                        </label>
+                        <select id="urgency" required>
+                            <option value="low">Low - Can wait 24 hours</option>
+                            <option value="medium">Medium - Need within 6 hours</option>
+                            <option value="high">High - Need within 2 hours</option>
+                            <option value="urgent">Urgent - Need immediately</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doubtType">
+                            <i class="fas fa-question-circle"></i>
+                            Doubt Type
+                        </label>
+                        <select id="doubtType" required>
+                            <option value="concept">Concept Clarification</option>
+                            <option value="problem">Problem Solving</option>
+                            <option value="homework">Homework Help</option>
+                            <option value="exam">Exam Preparation</option>
+                            <option value="project">Project Assistance</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="doubtTitle">
+                            <i class="fas fa-heading"></i>
+                            Doubt Title
+                        </label>
+                        <input type="text" id="doubtTitle" placeholder="Brief title for your doubt" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="doubtDescription">
+                            <i class="fas fa-edit"></i>
+                            Detailed Description
+                        </label>
+                        <textarea id="doubtDescription" placeholder="Explain your doubt in detail. The more specific you are, the better help we can provide." required></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>
+                            <i class="fas fa-image"></i>
+                            Attach Image (Optional)
+                        </label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="doubtImage" class="file-input" accept="image/*">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #ea580c; margin-bottom: 10px;"></i>
+                            <p>Click to upload or drag and drop</p>
+                            <small>PNG, JPG, JPEG up to 10MB</small>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Doubt
+                </button>
+            </form>
+        </div>
+
+
+
+         
+
+        <!-- Upgrade Section for Non-Subscribers -->
+        <div class="upgrade-section" id="upgradeSection" style="display: none;">
+            <h3 style="color: #f97316; margin-bottom: 15px;">Unlock Ask Doubt Feature</h3>
+            <p>Subscribe to our premium plan to get instant access to expert teachers and solve your doubts 24/7.</p>
+            <a href="sub.html" class="upgrade-btn">
+                <i class="fas fa-crown"></i>
+                Upgrade Now
+            </a>
+        </div>
+
+        <!-- Recent Doubts -->
+        <div class="recent-doubts" id="recentDoubts">
+            <h3>Your Recent Doubts</h3>
+            <div class="doubt-card">
+                <div class="doubt-header">
+                    <span class="doubt-subject">Mathematics</span>
+                    <span class="doubt-status status-pending">Pending</span>
+                </div>
+                <p><strong>Quadratic Equations</strong></p>
+                <p>How to solve x² + 5x + 6 = 0 using factorization method?</p>
+                <small style="color: #9ca3af;">Asked 2 hours ago</small>
+            </div>
+
+            <div class="doubt-card">
+                <div class="doubt-header">
+                    <span class="doubt-subject">Physics</span>
+                    <span class="doubt-status status-answered">Answered</span>
+                </div>
+                <p><strong>Newton's Laws</strong></p>
+                <p>Can you explain the difference between mass and weight?</p>
+                <small style="color: #9ca3af;">Asked yesterday</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get elements outside the function for broader scope
+        const accessStatus = document.getElementById('accessStatus');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusMessage = document.getElementById('statusMessage');
+        const formContainer = document.getElementById('doubtFormContainer');
+        const upgradeSection = document.getElementById('upgradeSection');
+
+        // Helper function to show locked message
+        function showLockedMessage(reason = 'subscription') {
+            accessStatus.classList.add('access-denied');
+            statusIcon.innerHTML = '<i class="fas fa-lock"></i>';
+            statusIcon.classList.add('denied');
+            statusTitle.textContent = 'Access Denied';
+
+            if (reason === 'doubt-access') {
+                statusMessage.textContent = 'Doubt access is not enabled. Please contact admin for approval.';
+                upgradeSection.style.display = 'none';
+            } else {
+                statusMessage.textContent = 'Please subscribe and get admin approval to ask doubts.';
+                upgradeSection.style.display = 'block';
+            }
+
+            formContainer.classList.add('disabled');
+            document.getElementById('doubtForm').querySelector('button').disabled = true;
+        }
+
+        // Helper function to show doubt form
+        function showDoubtForm() {
+            accessStatus.classList.remove('access-denied');
+            accessStatus.classList.add('access-granted');
+            statusIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            statusIcon.classList.remove('denied');
+            statusIcon.classList.add('granted');
+            statusTitle.textContent = 'Access Granted';
+            statusMessage.textContent = 'You have full access to ask doubts. Our teachers are ready to help!';
+            formContainer.classList.remove('disabled');
+            document.getElementById('doubtForm').querySelector('button').disabled = false;
+            upgradeSection.style.display = 'none';
+        }
+
+
+        // Check user access status
+        async function checkUserAccess() {
+            console.log('🔒 ASK DOUBT - Checking user access...');
+            try {
+                console.log('📡 Fetching subscription status...');
+                const response = await fetch('/api/subscription-status', {
+                    credentials: 'include' // Ensure cookies/session are sent
+                });
+
+                if (!response.ok) {
+                    console.error('❌ Subscription status check failed:', response.status, response.statusText);
+                    // Handle HTTP errors (e.g., 401, 500)
+                    if (response.status === 401 || response.status === 403) {
+                        console.log('🚫 Unauthorized or Forbidden - showing locked message');
+                        statusMessage.textContent = 'You need to be logged in and have an active subscription.';
+                    } else {
+                        console.log('⚠️ Server error during status check - defaulting to locked state');
+                        statusMessage.textContent = 'Could not verify subscription status. Please try again later or contact support.';
+                    }
+                    showLockedMessage();
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('📋 Subscription status response:', data);
+                console.log('🔍 Access check details:', {
+                    hasSubscription: data.hasSubscription,
+                    adminApproved: data.adminApproved,
+                    status: data.status,
+                    paymentStatus: data.paymentStatus,
+                    subscriptionEndDate: data.subscriptionEndDate,
+                    doubtAccessEnabled: data.doubtAccessEnabled // Assuming this field is returned
+                });
+
+                // Combined access check: subscription active AND admin approved AND doubt access enabled
+                const hasAccess = data.hasSubscription && data.adminApproved && data.status === 'active' && data.doubtAccessEnabled;
+                console.log('🎯 Final access decision:', hasAccess ? 'GRANTED' : 'DENIED');
+
+                if (!hasAccess) {
+                    console.log('❌ ACCESS DENIED - Showing appropriate locked message');
+                    if (!data.hasSubscription) {
+                        statusTitle.textContent = 'Payment Required';
+                        statusMessage.textContent = 'Please subscribe to unlock the ask doubt feature. Admin approval is required after payment.';
+                        upgradeSection.style.display = 'block';
+                    } else if (data.hasSubscription && !data.adminApproved) {
+                        statusTitle.textContent = 'Payment Under Review';
+                        statusMessage.textContent = 'Your payment is being verified by our admin. You will get access once approved.';
+                        upgradeSection.style.display = 'none';
+                    } else if (data.hasSubscription && data.adminApproved && data.status !== 'active') {
+                        statusTitle.textContent = 'Subscription Expired';
+                        statusMessage.textContent = 'Your subscription has expired. Please renew to continue asking doubts.';
+                        upgradeSection.style.display = 'block';
+                    } else if (data.hasSubscription && data.adminApproved && data.status === 'active' && !data.doubtAccessEnabled) {
+                        // Specifically handle the case where doubt access is disabled by admin
+                        showLockedMessage('doubt-access');
+                    }
+                     else {
+                        // Fallback for any other unhandled states
+                        statusTitle.textContent = 'Access Denied';
+                        statusMessage.textContent = 'Your access is not active. Please contact support.';
+                        upgradeSection.style.display = 'block';
+                    }
+                    showLockedMessage(); // Default to showing subscription-related message if not doubt-access specific
+                } else {
+                    console.log('✅ ACCESS GRANTED - Showing doubt form');
+                    showDoubtForm();
+                }
+            } catch (error) {
+                console.error('❌ Error checking user access:', error);
+                console.log('🔒 Error occurred during fetch or JSON parsing - defaulting to locked state');
+                statusMessage.textContent = 'Failed to verify access status due to a network or server error. Please try again later.';
+                showLockedMessage();
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('doubtForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('📝 DOUBT SUBMISSION - Starting process...');
+
+            const subject = document.getElementById('subject').value;
+            const grade = document.getElementById('grade').value;
+            const urgency = document.getElementById('urgency').value;
+            const doubtType = document.getElementById('doubtType').value;
+            const doubtTitle = document.getElementById('doubtTitle').value;
+            const doubtDescription = document.getElementById('doubtDescription').value;
+
+            console.log('📋 Doubt form data:', { subject, grade, urgency, doubtType, title: doubtTitle, description: doubtDescription });
+
+            const formData = new FormData();
+            formData.append('subject', subject);
+            formData.append('grade', grade);
+            formData.append('urgency', urgency);
+            formData.append('doubtType', doubtType);
+            formData.append('title', doubtTitle);
+            formData.append('description', doubtDescription);
+
+            const imageFile = document.getElementById('doubtImage').files[0];
+            if (imageFile) {
+                console.log('🖼️ Attaching image file:', imageFile.name);
+                formData.append('image', imageFile);
+            } else {
+                console.log('🖼️ No image file attached.');
+            }
+
+            try {
+                console.log('📡 Sending doubt submission request...');
+                const response = await fetch('/api/submit-doubt', {
+                    method: 'POST',
+                    body: formData // Use FormData directly for file uploads
+                });
+
+                console.log('📦 Doubt submission response status:', response.status);
+                const result = await response.json();
+                console.log('📋 Doubt submission result:', result);
+
+                if (result.success) {
+                    console.log('✅ Doubt submitted successfully');
+                    alert('Doubt submitted successfully! Our teachers will respond soon.');
+                    document.getElementById('doubtForm').reset();
+                    // Clear the file input display
+                    const fileInputWrapper = document.querySelector('.file-input-wrapper');
+                    fileInputWrapper.innerHTML = `
+                        <input type="file" id="doubtImage" class="file-input" accept="image/*">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #ea580c; margin-bottom: 10px;"></i>
+                        <p>Click to upload or drag and drop</p>
+                        <small>PNG, JPG, JPEG up to 10MB</small>
+                    `;
+                    loadRecentDoubts(); // Refresh the doubts list
+                } else {
+                    console.log('❌ Doubt submission failed:', result.message);
+                    alert(result.message || 'Failed to submit doubt. Please check your input and try again.');
+                }
+            } catch (error) {
+                console.error('❌ Error submitting doubt:', error);
+                alert('Error submitting doubt. Please check your network connection and try again.');
+            }
+        });
+
+        // Load recent doubts
+        async function loadRecentDoubts() {
+            console.log('🔄 Loading recent doubts...');
+            try {
+                const response = await fetch('/api/user-doubts');
+                if (!response.ok) {
+                    console.error('❌ Error fetching recent doubts:', response.status, response.statusText);
+                    return;
+                }
+                const doubts = await response.json();
+                console.log('📋 Fetched doubts:', doubts);
+
+                const recentDoubtsContainer = document.getElementById('recentDoubts');
+                recentDoubtsContainer.innerHTML = ''; // Clear existing doubts
+
+                if (doubts.length === 0) {
+                    recentDoubtsContainer.innerHTML = '<p style="text-align: center; color: #ea580c;">No doubts submitted yet.</p>';
+                    return;
+                }
+
+                doubts.forEach(doubt => {
+                    const doubtCard = document.createElement('div');
+                    doubtCard.classList.add('doubt-card');
+
+                    let statusClass = '';
+                    let statusText = '';
+                    switch (doubt.status.toLowerCase()) {
+                        case 'pending':
+                            statusClass = 'status-pending';
+                            statusText = 'Pending';
+                            break;
+                        case 'answered':
+                            statusClass = 'status-answered';
+                            statusText = 'Answered';
+                            break;
+                        case 'rejected':
+                            statusClass = 'status-rejected';
+                            statusText = 'Rejected';
+                            break;
+                        default:
+                            statusClass = 'status-pending';
+                            statusText = doubt.status;
+                    }
+
+                    doubtCard.innerHTML = `
+                        <div class="doubt-header">
+                            <span class="doubt-subject">${doubt.subject}</span>
+                            <span class="doubt-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <p><strong>${doubt.title}</strong></p>
+                        <p>${doubt.description.substring(0, 100)}${doubt.description.length > 100 ? '...' : ''}</p>
+                        <small style="color: #9ca3af;">Asked ${new Date(doubt.createdAt).toLocaleString()}</small>
+                    `;
+                    recentDoubtsContainer.appendChild(doubtCard);
+                });
+                console.log('✅ Recent doubts rendered successfully.');
+
+            } catch (error) {
+                console.error('❌ Error loading recent doubts:', error);
+                const recentDoubtsContainer = document.getElementById('recentDoubts');
+                recentDoubtsContainer.innerHTML = '<p style="text-align: center; color: #ef4444;">Failed to load recent doubts.</p>';
+            }
+        }
+
+        // File upload preview handler
+        document.getElementById('doubtImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const wrapper = document.querySelector('.file-input-wrapper');
+            if (file) {
+                // Basic file type and size validation (can be enhanced)
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload a valid image file.');
+                    wrapper.innerHTML = `
+                        <input type="file" id="doubtImage" class="file-input" accept="image/*">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #ea580c; margin-bottom: 10px;"></i>
+                        <p>Click to upload or drag and drop</p>
+                        <small>PNG, JPG, JPEG up to 10MB</small>
+                    `;
+                    return;
+                }
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    alert('File size exceeds the 10MB limit.');
+                    wrapper.innerHTML = `
+                        <input type="file" id="doubtImage" class="file-input" accept="image/*">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #ea580c; margin-bottom: 10px;"></i>
+                        <p>Click to upload or drag and drop</p>
+                        <small>PNG, JPG, JPEG up to 10MB</small>
+                    `;
+                    return;
+                }
+
+                console.log(`🖼️ File selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+                wrapper.innerHTML = `
+                    <input type="file" id="doubtImage" class="file-input" accept="image/*">
+                    <i class="fas fa-check" style="font-size: 2rem; color: #10b981; margin-bottom: 10px;"></i>
+                    <p style="color: #9a3412;">File selected: ${file.name}</p>
+                    <small>Click to change file</small>
+                `;
+            } else {
+                // If user cancels file selection, reset to default
+                console.log('🖼️ File selection cancelled, resetting upload area.');
+                wrapper.innerHTML = `
+                    <input type="file" id="doubtImage" class="file-input" accept="image/*">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #ea580c; margin-bottom: 10px;"></i>
+                    <p>Click to upload or drag and drop</p>
+                    <small>PNG, JPG, JPEG up to 10MB</small>
+                `;
+            }
+        });
+
+
+        // Initialize page by checking user access and loading recent doubts
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Page loaded. Initializing components...');
+            checkUserAccess();
+            loadRecentDoubts();
+            console.log('✅ Initialization complete.');
+        });
+    </script>
+</body>
+</html>

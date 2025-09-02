@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learnly Subscription</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      animation: pageLoad 0.8s ease-out;
+    }
+
+    @keyframes pageLoad {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 5%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(251, 146, 60, 0.2);
+      z-index: 999;
+      font-weight: 600;
+      animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #f97316;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 30px;
+    }
+
+    .navigation a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .navigation a:hover,
+    .navigation a.active {
+      color: #f97316;
+    }
+
+    .back-btn {
+      background: #f97316;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .back-btn:hover {
+      transform: scale(1.05);
+      background: #ea580c;
+    }
+
+    /* Main Container */
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 120px 20px 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 30px;
+      padding: 60px;
+      box-shadow: 0 20px 60px rgba(251, 146, 60, 0.15);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      max-width: 1200px;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+      animation: cardSlideUp 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes cardSlideUp {
+      from { opacity: 0; transform: translateY(50px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .main-heading {
+      grid-column: 1;
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #ea580c;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      animation: textSlideIn 0.8s ease-out 0.4s both;
+    }
+
+    @keyframes textSlideIn {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: #c2410c;
+      margin-top: 20px;
+      font-weight: 500;
+      animation: textSlideIn 0.8s ease-out 0.6s both;
+    }
+
+    .plan-section {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .plan-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(254, 215, 170, 0.3));
+      border-radius: 20px;
+      padding: 30px;
+      border: 2px solid rgba(251, 146, 60, 0.2);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      animation: cardFadeIn 0.8s ease-out 0.8s both;
+    }
+
+    @keyframes cardFadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .plan-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 25px 50px rgba(251, 146, 60, 0.3);
+      border-color: rgba(251, 146, 60, 0.4);
+    }
+
+    .plan-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #ea580c;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .plan-price {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #f97316;
+      margin-bottom: 20px;
+      animation: priceGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes priceGlow {
+      from { text-shadow: 0 0 10px rgba(249, 115, 22, 0.3); }
+      to { text-shadow: 0 0 20px rgba(249, 115, 22, 0.6); }
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 25px;
+    }
+
+    .plan-features li {
+      padding: 8px 0;
+      color: #9a3412;
+      font-weight: 500;
+      position: relative;
+      padding-left: 25px;
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #16a34a;
+      font-weight: bold;
+    }
+
+    .subscribe-btn {
+      width: 100%;
+      padding: 15px 25px;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .subscribe-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+      background: linear-gradient(135deg, #ea580c, #dc2626);
+    }
+
+    /* Payment Modal */
+    .payment-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .payment-content {
+      background: white;
+      border-radius: 20px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .payment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .payment-header h2 {
+      color: #f97316;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .payment-details {
+      padding: 30px;
+    }
+
+    .plan-summary {
+      background: linear-gradient(135deg, #fff7ed, #fed7aa);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .price-breakdown {
+      margin-bottom: 20px;
+    }
+
+    .price-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 5px 0;
+    }
+
+    .price-item.total {
+      border-top: 2px solid #f97316;
+      padding-top: 10px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #f97316;
+    }
+
+    .verify-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .verify-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+    }
+
+    .verify-btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .upload-area {
+      border: 2px dashed #f97316;
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.05), rgba(251, 146, 60, 0.05));
+      margin-top: 20px;
+    }
+
+    .upload-area:hover {
+      border-color: #ea580c;
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(251, 146, 60, 0.15));
+      transform: translateY(-3px);
+    }
+
+    .error-message {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      text-align: center;
+    }
+
+    .success-message {
+      background: #dcfce7;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      text-align: center;
+    }
+
+    .back-btn {
+        margin-bottom: 2rem;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        text-align: center;
+      }
+
+      .main-heading {
+        font-size: 2.5rem;
+      }
+
+      .card-container {
+        padding: 40px 20px;
+        margin: 10px;
+      }
+
+      .plan-section {
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#" class="logo">Learnly</a>
+        <nav class="navigation">
+      <a href="/dashboard">Home</a>
+
+      <a href="#" class="active">Subscription</a>
+    </nav>
+   <!-- <button class="back-btn" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i> Back
+    </button>-->
+  </header>
+
+  <div class="container">
+    <!--<a href="/dashboard" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>-->
+
+    <div class="card-container">
+      <div class="content-grid">
+        <div>
+          <h1 class="main-heading">Careful<br>Pricing</h1>
+          <p class="subtitle">Choose the perfect plan for your learning journey</p>
+        </div>
+
+        <div class="plan-section">
+          <div class="plan-card">
+            <h3 class="plan-title">Yearly Plan</h3>
+            <div class="plan-price">₹4,999</div>
+            <ul class="plan-features">
+              <li>Unlimited course access</li>
+              <li>Priority doubt solving</li>
+              <li>Offline downloads</li>
+              <li>Certificate of completion</li>
+              <li>2 months free bonus</li>
+            </ul>
+            <button class="subscribe-btn" onclick="subscribePlan('yearly')">
+              Subscribe Now
+            </button>
+          </div>
+
+          <div class="plan-card">
+            <h3 class="plan-title">Monthly Plan</h3>
+            <div class="plan-price">₹499</div>
+            <ul class="plan-features">
+              <li>Unlimited course access</li>
+              <li>Standard doubt solving</li>
+              <li>Online streaming</li>
+              <li>Progress tracking</li>
+              <li>Cancel anytime</li>
+            </ul>
+            <button class="subscribe-btn" onclick="subscribePlan('monthly')">
+              Subscribe Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="payment-modal">
+    <div class="payment-content">
+      <div class="payment-header">
+        <h2>Complete Your Subscription</h2>
+        <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+      </div>
+
+      <div class="payment-details">
+        <div class="plan-summary">
+          <h3 id="selectedPlan">Plan Details</h3>
+          <div class="price-breakdown">
+            <div class="price-item">
+              <span>Plan Price:</span>
+              <span id="planPrice">₹0</span>
+            </div>
+            <div class="price-item">
+              <span>GST (18%):</span>
+              <span id="gstAmount">₹0</span>
+            </div>
+            <div class="price-item total">
+              <span>Total Amount:</span>
+              <span id="totalAmount">₹0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="payment-methods">
+          <h3>Payment Instructions</h3>
+          <div class="payment-info">
+            <p><strong>UPI ID:</strong> learnly@paytm</p>
+            <p><strong>Account:</strong> Learnly Education</p>
+            <p>After payment, upload the screenshot below:</p>
+          </div>
+
+          <div class="upload-area" onclick="document.getElementById('proofUpload').click()">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #f97316; margin-bottom: 10px;"></i>
+            <p>Click to upload payment proof</p>
+            <small>PNG, JPG, JPEG up to 2MB</small>
+          </div>
+          <input type="file" id="proofUpload" accept="image/*" style="display: none;">
+
+          <div id="proofPreview" style="display: none; margin-top: 15px; text-align: center;">
+            <img id="previewImg" style="max-width: 200px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+            <p id="fileName" style="margin-top: 10px; color: #10b981; font-weight: 600;"></p>
+          </div>
+
+          <div id="errorMessage" class="error-message" style="display: none;"></div>
+          <div id="successMessage" class="success-message" style="display: none;"></div>
+
+          <button type="button" onclick="verifyPayment()" class="verify-btn" id="verifyBtn">
+            <i class="fas fa-check-circle"></i>
+            Verify Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDaL18Mt7-oWbWwXuy1j1ov6QepclsUkbU",
+      authDomain: "learnly-2c0fc.firebaseapp.com",
+      projectId: "learnly-2c0fc",
+      storageBucket: "learnly-2c0fc.firebasestorage.app",
+      messagingSenderId: "864247257392",
+      appId: "1:864247257392:web:faad461dd382d4ace3d0f5",
+      measurementId: "G-NQVCSEPJDH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+    let currentPlan = null;
+
+    const planDetails = {
+      yearly: {
+        name: 'Yearly Plan',
+        price: 4999,
+        benefits: [
+          'Unlimited course access',
+          'Priority doubt solving',
+          'Offline downloads',
+          'Certificate of completion',
+          '2 months free bonus'
+        ]
+      },
+      monthly: {
+        name: 'Monthly Plan',
+        price: 499,
+        benefits: [
+          'Unlimited course access',
+          'Standard doubt solving',
+          'Online streaming',
+          'Progress tracking',
+          'Cancel anytime'
+        ]
+      }
+    };
+
+    // Auth state listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        console.log('✅ User authenticated for subscription');
+      } else {
+        console.log('❌ No user found, redirecting to auth');
+        window.location.href = '/auth?type=student';
+      }
+    });
+
+    function showErrorMessage(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      successDiv.style.display = 'none';
+    }
+
+    function showSuccessMessage(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+      errorDiv.style.display = 'none';
+    }
+
+    function hideMessages() {
+      document.getElementById('errorMessage').style.display = 'none';
+      document.getElementById('successMessage').style.display = 'none';
+    }
+
+    window.goBack = function() {
+      window.location.href = '/dashboard';
+    };
+
+    window.subscribePlan = function(plan) {
+      currentPlan = plan;
+      const details = planDetails[plan];
+      const gst = Math.round(details.price * 0.18);
+      const total = details.price + gst;
+
+      document.getElementById('selectedPlan').textContent = details.name;
+      document.getElementById('planPrice').textContent = `₹${details.price}`;
+      document.getElementById('gstAmount').textContent = `₹${gst}`;
+      document.getElementById('totalAmount').textContent = `₹${total}`;
+
+      hideMessages();
+      document.getElementById('paymentModal').style.display = 'flex';
+    };
+
+    window.closePaymentModal = function() {
+      document.getElementById('paymentModal').style.display = 'none';
+      currentPlan = null;
+      hideMessages();
+    };
+
+    window.verifyPayment = async function() {
+      if (!currentPlan || !currentUser) {
+        showErrorMessage('Please login and select a plan first');
+        return;
+      }
+
+      const proofFile = document.getElementById('proofUpload').files[0];
+      if (!proofFile) {
+        showErrorMessage('Please upload payment proof first');
+        return;
+      }
+
+      // Check file size (2MB limit)
+      if (proofFile.size > 2 * 1024 * 1024) {
+        showErrorMessage('File size too large. Please upload an image smaller than 2MB.');
+        return;
+      }
+
+      const btn = document.getElementById('verifyBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      hideMessages();
+
+      try {
+        const formData = new FormData();
+        formData.append('plan', currentPlan);
+        formData.append('amount', planDetails[currentPlan].price);
+        formData.append('paymentMethod', 'UPI');
+        formData.append('paymentProof', proofFile);
+
+        const idToken = await currentUser.getIdToken();
+        const response = await fetch('/api/payment/upload-proof', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: formData
+        });
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          showSuccessMessage('Payment proof uploaded successfully! Please wait for admin approval.');
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 2000);
+        } else {
+          throw new Error(responseData.error || 'Payment verification failed');
+        }
+      } catch (error) {
+        console.error('Payment verification error:', error);
+        showErrorMessage('Payment verification failed: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Payment';
+      }
+    };
+
+    // Handle file upload preview
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('proofUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          // Validate file size
+          if (file.size > 2 * 1024 * 1024) {
+            showErrorMessage('File size too large. Please select an image smaller than 2MB.');
+            this.value = '';
+            return;
+          }
+
+          const preview = document.getElementById('proofPreview');
+          const img = document.getElementById('previewImg');
+          const fileName = document.getElementById('fileName');
+
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            img.src = e.target.result;
+            fileName.textContent = file.name;
+            preview.style.display = 'block';
+            hideMessages();
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

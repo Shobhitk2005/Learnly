@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doubt Responses - Learnly</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .responses-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            padding: 2rem;
+        }
+
+        .responses-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .responses-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .responses-header h1 {
+            color: #ea580c;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex; /* Changed to flex */
+            align-items: center; /* Vertically align icon and text */
+            justify-content: center; /* Horizontally center the content */
+        }
+
+        .responses-header h1 svg {
+            margin-right: 0.5rem; /* Space between icon and text */
+        }
+
+
+        .responses-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .responses-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .doubt-response-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #f97316;
+        }
+
+        .doubt-response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .doubt-subject {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .doubt-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .doubt-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .doubt-status.responded {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .doubt-question {
+            margin-bottom: 1rem;
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .doubt-response {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 3px solid #10b981;
+        }
+
+        .doubt-response h4 {
+            color: #059669;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .doubt-response p {
+            color: #374151;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .doubt-date {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .no-responses {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .no-responses i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #d1d5db;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .responses-container {
+                padding: 1rem;
+            }
+
+            .responses-header h1 {
+                font-size: 2rem;
+            }
+
+            .doubt-response-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="responses-container">
+        <div class="responses-content">
+            <a href="/dashboard" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+
+            <div class="responses-header">
+                <h1>Doubt Responses</h1>
+                <p>View all responses from our expert teachers to your submitted doubts</p>
+            </div>
+
+            <div id="responsesLoading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading your doubt responses...</p>
+            </div>
+
+            <div id="responsesList" class="responses-list">
+                <!-- Responses will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase imports and initialization
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaL18Mt7-oWbWwXuy1j1ov6QepclsUkbU",
+            authDomain: "learnly-2c0fc.firebaseapp.com",
+            projectId: "learnly-2c0fc",
+            storageBucket: "learnly-2c0fc.firebasestorage.app",
+            messagingSenderId: "864247257392",
+            appId: "1:864247257392:web:faad461dd382d4ace3d0f5",
+            measurementId: "G-NQVCSEPJDH"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadDoubtResponses();
+            } else {
+                window.location.href = '/auth?type=student';
+            }
+        });
+
+        // Load doubt responses
+        async function loadDoubtResponses() {
+            const loadingEl = document.getElementById('responsesLoading');
+            const listEl = document.getElementById('responsesList');
+
+            try {
+                if (!currentUser) return;
+
+                const idToken = await currentUser.getIdToken();
+                const response = await fetch('/api/user/my-doubts', {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const doubts = await response.json();
+
+                    if (loadingEl) loadingEl.style.display = 'none';
+
+                    if (listEl) {
+                        if (doubts.length === 0) {
+                            listEl.innerHTML = `
+                                <div class="doubt-response-card">
+                                    <div class="no-responses">
+                                        <i class="fas fa-question-circle"></i>
+                                        <h3>No doubts asked yet</h3>
+                                        <p>Start asking doubts to see responses here</p>
+                                        <a href="/dashboard" style="color: #f97316; text-decoration: none; font-weight: 600;">
+                                            <i class="fas fa-plus"></i> Ask Your First Doubt
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Sort doubts by creation date (newest first) 
+                            doubts.sort((a, b) => {
+                                const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                                const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                                return dateB - dateA;
+                            });
+
+                            listEl.innerHTML = doubts.map(doubt => `
+                                <div class="doubt-response-card">
+                                    <div class="doubt-response-header">
+                                        <span class="doubt-subject">${doubt.subject}</span>
+                                        <span class="doubt-status ${doubt.status}">${doubt.status}</span>
+                                    </div>
+                                    <div class="doubt-question">
+                                        <strong>Question:</strong> ${doubt.question}
+                                    </div>
+                                    ${doubt.adminResponse ? `
+                                        <div class="doubt-response">
+                                            <h4><i class="fas fa-reply"></i> Teacher's Response:</h4>
+                                            <p>${doubt.adminResponse}</p>
+                                        </div>
+                                    ` : '<p style="color: #718096; font-style: italic; padding: 1rem; background: #f7fafc; border-radius: 8px;">No response yet. Our teachers will respond soon!</p>'}
+                                    <div class="doubt-date">
+                                        Asked ${formatTimeAgo(doubt.createdAt)}
+                                        ${doubt.updatedAt && doubt.adminResponse ? ` • Responded ${formatTimeAgo(doubt.updatedAt)}` : ''}
+                                    </div>
+                                </div>
+                            `).join('');
+                        }
+                    }
+                } else {
+                    throw new Error('Failed to load responses');
+                }
+            } catch (error) {
+                console.error('Error loading doubt responses:', error);
+                if (loadingEl) loadingEl.style.display = 'none';
+                if (listEl) {
+                    listEl.innerHTML = `
+                        <div class="doubt-response-card">
+                            <div class="no-responses">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <h3>Error loading responses</h3>
+                                <p>Please refresh the page to try again</p>
+                                <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #f97316; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                    <i class="fas fa-refresh"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Format time ago helper function
+        function formatTimeAgo(dateString) {
+            if (!dateString) return 'Unknown time';
+
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+            if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+
+            return date.toLocaleDateString();
+        }
+    </script>
+</body>
+</html>

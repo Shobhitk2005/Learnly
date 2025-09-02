@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="auth.css">
+    <title>Modern Login Page | Learnly</title>
+</head>
+
+<body>
+    <div class="container" id="container">
+        <!-- SIGN UP FORM -->
+        <div class="form-container sign-up">
+            <form id="signupForm">
+                <h1>Create Account</h1>
+                <h2 id="authTitle" style="display: none;">Student Sign Up</h2>
+                <div class="social-icons">
+                    <button type="button" id="googleBtn" class="social-btn google" title="Sign up with Google">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button type="button" id="appleBtnSignup" class="social-btn apple" title="Sign up with Apple">
+                        <i class="fab fa-apple"></i>
+                    </button>
+                    <button type="button" id="phoneBtnSignup" class="social-btn phone" title="Sign up with Phone">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                </div>
+                <span>or use your email for registration</span>
+                <input type="text" id="signupName" placeholder="Full Name" required>
+                <input type="email" id="signupEmail" placeholder="Email" required>
+                <input type="password" id="signupPassword" placeholder="Password" required>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- SIGN IN FORM -->
+        <div class="form-container sign-in">
+            <form id="loginForm">
+                <h1>Sign In</h1>
+                <h2 id="loginAuthTitle" style="display: none;">Student Sign In</h2>
+                <div class="social-icons">
+                    <button type="button" id="googleBtnLogin" class="social-btn google" title="Sign in with Google">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button type="button" id="appleBtnLogin" class="social-btn apple" title="Sign in with Apple">
+                        <i class="fab fa-apple"></i>
+                    </button>
+                    <button type="button" id="phoneBtnLogin" class="social-btn phone" title="Sign in with Phone">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                </div>
+                <span>or use your email password</span>
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <a href="#" id="forgotPasswordBtn">Forgot Your Password?</a>
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+
+        <!-- SLIDING TOGGLE PANELS -->
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Enter your personal details to access all site features</p>
+                    <button id="login">Sign In</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Register with your personal details to use all site features</p>
+                    <button id="register">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phone Authentication Modal -->
+    <div id="phoneAuthModal" class="phone-modal">
+        <div class="phone-modal-content">
+            <div class="phone-modal-header">
+                <h2>Phone Authentication</h2>
+                <button class="close-phone-modal" onclick="closePhoneModal()">&times;</button>
+            </div>
+            <div class="phone-modal-body">
+                <div id="phone-step-1" class="phone-step">
+                    <h3>Enter Your Phone Number</h3>
+                    <div class="phone-input-group">
+                        <select id="countryCode" class="country-select">
+                            <option value="+91">🇮🇳 +91 (India)</option>
+                            <option value="+1">🇺🇸 +1 (USA)</option>
+                            <option value="+44">🇬🇧 +44 (UK)</option>
+                            <option value="+86">🇨🇳 +86 (China)</option>
+                        </select>
+                        <input type="tel" id="phoneNumber" placeholder="Enter phone number" class="phone-input">
+                    </div>
+                    <div id="recaptcha-container"></div>
+                    <button id="sendOtpBtn" class="phone-btn">Send OTP</button>
+                </div>
+
+                <div id="phone-step-2" class="phone-step" style="display: none;">
+                    <h3>Enter OTP</h3>
+                    <p>We've sent a verification code to <span id="sentPhoneNumber"></span></p>
+                    <input type="text" id="otpCode" placeholder="Enter 6-digit OTP" class="otp-input" maxlength="6">
+                    <button id="verifyOtpBtn" class="phone-btn">Verify OTP</button>
+                    <button id="resendOtpBtn" class="phone-btn-secondary">Resend OTP</button>
+                </div>
+
+                <div id="phone-step-3" class="phone-step" style="display: none;">
+                    <h3>Complete Your Profile</h3>
+                    <input type="text" id="phoneUserName" placeholder="Enter your name" class="phone-input">
+                    <button id="completeProfileBtn" class="phone-btn">Complete Registration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Reset Modal -->
+    <div id="passwordResetModal" class="phone-modal" style="display: none;">
+        <div class="phone-modal-content">
+            <div class="phone-modal-header">
+                <h2>Reset Password</h2>
+                <button class="close-phone-modal" id="closePasswordResetModalBtn">&times;</button>
+            </div>
+            <div class="phone-modal-body">
+                <form id="passwordResetForm">
+                    <h3>Enter your email address</h3>
+                    <p>We'll send you a password reset link</p>
+                    <input type="email" id="resetEmail" placeholder="Enter your email" class="phone-input" required>
+                    <button type="submit" class="phone-btn">Send Reset Link</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="security.js"></script>
+    <script type="module" src="auth.js"></script>
+</body>
+
+</html>
