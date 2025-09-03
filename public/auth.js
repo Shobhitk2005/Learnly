@@ -612,47 +612,126 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Phone Authentication Functions
     window.openPhoneModal = function(type) {
+        console.log('📱 Opening phone modal for:', type);
         phoneAuthType = type;
+        
+        // Reset modal state
         document.getElementById('phoneAuthModal').style.display = 'flex';
         document.getElementById('phone-step-1').style.display = 'block';
         document.getElementById('phone-step-2').style.display = 'none';
         document.getElementById('phone-step-3').style.display = 'none';
-        setupRecaptcha();
+        
+        // Clear previous inputs
+        const phoneNumberInput = document.getElementById('phoneNumber');
+        const otpCodeInput = document.getElementById('otpCode');
+        const phoneUserNameInput = document.getElementById('phoneUserName');
+        
+        if (phoneNumberInput) phoneNumberInput.value = '';
+        if (otpCodeInput) otpCodeInput.value = '';
+        if (phoneUserNameInput) phoneUserNameInput.value = '';
+        
+        // Reset confirmation result
+        confirmationResult = null;
+        
+        // Setup reCAPTCHA with a small delay to ensure DOM is ready
+        setTimeout(() => {
+            setupRecaptcha();
+        }, 100);
     };
 
     window.closePhoneModal = function() {
+        console.log('❌ Closing phone modal and cleaning up');
         document.getElementById('phoneAuthModal').style.display = 'none';
+        
+        // Clean up reCAPTCHA
         if (recaptchaVerifier) {
-            recaptchaVerifier.clear();
+            try {
+                recaptchaVerifier.clear();
+            } catch (e) {
+                console.log('reCAPTCHA already cleared');
+            }
             recaptchaVerifier = null;
         }
+        
+        // Clear confirmation result
         confirmationResult = null;
+        
+        // Clear form inputs
+        const phoneNumberInput = document.getElementById('phoneNumber');
+        const otpCodeInput = document.getElementById('otpCode');
+        const phoneUserNameInput = document.getElementById('phoneUserName');
+        
+        if (phoneNumberInput) phoneNumberInput.value = '';
+        if (otpCodeInput) otpCodeInput.value = '';
+        if (phoneUserNameInput) phoneUserNameInput.value = '';
+        
+        // Reset to first step
+        document.getElementById('phone-step-1').style.display = 'block';
+        document.getElementById('phone-step-2').style.display = 'none';
+        document.getElementById('phone-step-3').style.display = 'none';
     };
 
     function setupRecaptcha() {
         if (recaptchaVerifier) {
-            recaptchaVerifier.clear();
+            try {
+                recaptchaVerifier.clear();
+            } catch (e) {
+                console.log('reCAPTCHA already cleared or not initialized');
+            }
+            recaptchaVerifier = null;
         }
 
         try {
+            // Clear any existing reCAPTCHA container content
+            const recaptchaContainer = document.getElementById('recaptcha-container');
+            if (recaptchaContainer) {
+                recaptchaContainer.innerHTML = '';
+            }
+
             recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'normal',
                 'callback': (response) => {
-                    console.log('✅ reCAPTCHA solved');
+                    console.log('✅ reCAPTCHA solved:', response);
+                    // Enable send OTP button
+                    const sendBtn = document.getElementById('sendOtpBtn');
+                    if (sendBtn) {
+                        sendBtn.disabled = false;
+                        sendBtn.style.opacity = '1';
+                    }
                 },
                 'expired-callback': () => {
                     console.log('⏰ reCAPTCHA expired');
-                    showMessage('reCAPTCHA expired. Please try again.', 'error');
+                    showMessage('reCAPTCHA expired. Please solve it again.', 'error');
+                    // Disable send OTP button
+                    const sendBtn = document.getElementById('sendOtpBtn');
+                    if (sendBtn) {
+                        sendBtn.disabled = true;
+                        sendBtn.style.opacity = '0.6';
+                    }
+                },
+                'error-callback': (error) => {
+                    console.error('❌ reCAPTCHA error:', error);
+                    showMessage('reCAPTCHA error. Please refresh and try again.', 'error');
                 }
             });
 
-            recaptchaVerifier.render().catch(error => {
+            // Render reCAPTCHA and handle any errors
+            recaptchaVerifier.render().then((widgetId) => {
+                console.log('✅ reCAPTCHA rendered successfully with widget ID:', widgetId);
+                // Initially disable the send button until reCAPTCHA is solved
+                const sendBtn = document.getElementById('sendOtpBtn');
+                if (sendBtn) {
+                    sendBtn.disabled = true;
+                    sendBtn.style.opacity = '0.6';
+                }
+            }).catch(error => {
                 console.error('❌ reCAPTCHA render error:', error);
-                showMessage('reCAPTCHA failed to load. Please refresh and try again.', 'error');
+                showMessage('reCAPTCHA failed to load. Please refresh the page and try again.', 'error');
             });
+
         } catch (error) {
             console.error('❌ reCAPTCHA setup error:', error);
-            showMessage('Phone authentication unavailable. Please use email signup.', 'error');
+            showMessage('Phone authentication is currently unavailable. Please use email signup instead.', 'error');
         }
     }
 
@@ -661,37 +740,79 @@ document.addEventListener('DOMContentLoaded', () => {
         const countryCode = document.getElementById('countryCode').value;
         const phoneNumber = phoneNumberInput.value.trim();
 
+        // Validate phone number format
         if (!phoneNumber) {
             showMessage('Please enter a valid phone number', 'error');
             return;
         }
 
+        // Basic phone number validation
+        const phoneRegex = /^[0-9]{6,15}$/;
+        if (!phoneRegex.test(phoneNumber)) {
+            showMessage('Please enter a valid phone number (6-15 digits)', 'error');
+            return;
+        }
+
         const fullPhoneNumber = countryCode + phoneNumber;
+        console.log('📱 Attempting to send OTP to:', fullPhoneNumber);
 
         const sendBtn = document.getElementById('sendOtpBtn');
         setLoadingState(sendBtn, true);
         sendBtn.textContent = 'Sending OTP...';
 
         try {
+            // Check if reCAPTCHA is solved
+            if (!recaptchaVerifier) {
+                throw new Error('reCAPTCHA not initialized. Please refresh the page.');
+            }
+
             confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, recaptchaVerifier);
+            console.log('✅ OTP sent successfully to:', fullPhoneNumber);
 
             document.getElementById('phone-step-1').style.display = 'none';
             document.getElementById('phone-step-2').style.display = 'block';
             document.getElementById('sentPhoneNumber').textContent = fullPhoneNumber;
 
-            showMessage('OTP sent successfully!', 'success');
+            showMessage('OTP sent successfully! Check your messages.', 'success');
         } catch (error) {
-            console.error('Error sending OTP:', error);
+            console.error('❌ Error sending OTP:', error);
             let errorMessage = 'Failed to send OTP. Please try again.';
 
-            if (error.code === 'auth/invalid-phone-number') {
-                errorMessage = 'Invalid phone number. Please check and try again.';
-            } else if (error.code === 'auth/too-many-requests') {
-                errorMessage = 'Too many requests. Please try again later.';
+            switch (error.code) {
+                case 'auth/invalid-phone-number':
+                    errorMessage = 'Invalid phone number format. Please check and try again.';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = 'Too many requests. Please wait before trying again.';
+                    break;
+                case 'auth/captcha-check-failed':
+                    errorMessage = 'reCAPTCHA verification failed. Please solve the reCAPTCHA and try again.';
+                    break;
+                case 'auth/quota-exceeded':
+                    errorMessage = 'SMS quota exceeded. Please try again later or use email signup.';
+                    break;
+                case 'auth/missing-phone-number':
+                    errorMessage = 'Phone number is required.';
+                    break;
+                case 'auth/invalid-app-credential':
+                    errorMessage = 'App not properly configured for phone authentication.';
+                    break;
+                default:
+                    if (error.message.includes('reCAPTCHA')) {
+                        errorMessage = 'reCAPTCHA verification required. Please solve the reCAPTCHA first.';
+                    } else if (error.message.includes('domain')) {
+                        errorMessage = 'Domain not authorized for phone authentication. Please contact support.';
+                    } else {
+                        errorMessage = error.message || errorMessage;
+                    }
             }
 
             showMessage(errorMessage, 'error');
-            setupRecaptcha(); // Reset reCAPTCHA
+            
+            // Reset reCAPTCHA for retry
+            setTimeout(() => {
+                setupRecaptcha();
+            }, 1000);
         } finally {
             setLoadingState(sendBtn, false);
             sendBtn.textContent = 'Send OTP';
@@ -701,8 +822,18 @@ document.addEventListener('DOMContentLoaded', () => {
     window.verifyOTP = async function() {
         const otpCode = document.getElementById('otpCode').value.trim();
 
-        if (!otpCode || otpCode.length !== 6) {
+        if (!otpCode) {
+            showMessage('Please enter the OTP code', 'error');
+            return;
+        }
+
+        if (otpCode.length !== 6 || !/^\d{6}$/.test(otpCode)) {
             showMessage('Please enter a valid 6-digit OTP', 'error');
+            return;
+        }
+
+        if (!confirmationResult) {
+            showMessage('No OTP session found. Please request a new OTP.', 'error');
             return;
         }
 
@@ -711,30 +842,48 @@ document.addEventListener('DOMContentLoaded', () => {
         verifyBtn.textContent = 'Verifying...';
 
         try {
+            console.log('🔍 Verifying OTP code:', otpCode);
             const result = await confirmationResult.confirm(otpCode);
             const user = result.user;
+            console.log('✅ OTP verified successfully for user:', user.uid);
 
             if (phoneAuthType === 'signup') {
                 // For signup, go to profile completion step
                 document.getElementById('phone-step-2').style.display = 'none';
                 document.getElementById('phone-step-3').style.display = 'block';
                 document.getElementById('phoneUserName').value = user.displayName || ''; // Pre-fill name if available
+                showMessage('Phone verified! Please complete your profile.', 'success');
             } else {
                 // For login, redirect directly
                 const idToken = await user.getIdToken();
                 localStorage.setItem('userToken', idToken);
                 localStorage.setItem('userType', userType);
                 showMessage('Phone login successful! Redirecting...', 'success');
+                closePhoneModal();
                 setTimeout(() => redirectToDashboard(userType), 1500);
             }
         } catch (error) {
-            console.error('Error verifying OTP:', error);
+            console.error('❌ Error verifying OTP:', error);
             let errorMessage = 'Invalid OTP. Please try again.';
 
-            if (error.code === 'auth/invalid-verification-code') {
-                errorMessage = 'Invalid verification code. Please check and try again.';
-            } else if (error.code === 'auth/code-expired') {
-                errorMessage = 'OTP has expired. Please request a new one.';
+            switch (error.code) {
+                case 'auth/invalid-verification-code':
+                    errorMessage = 'Invalid verification code. Please check and try again.';
+                    break;
+                case 'auth/code-expired':
+                    errorMessage = 'OTP has expired. Please request a new one.';
+                    break;
+                case 'auth/session-expired':
+                    errorMessage = 'Session expired. Please request a new OTP.';
+                    break;
+                case 'auth/invalid-verification-id':
+                    errorMessage = 'Invalid verification session. Please request a new OTP.';
+                    break;
+                case 'auth/missing-verification-code':
+                    errorMessage = 'Please enter the verification code.';
+                    break;
+                default:
+                    errorMessage = error.message || errorMessage;
             }
 
             showMessage(errorMessage, 'error');
@@ -798,11 +947,25 @@ document.addEventListener('DOMContentLoaded', () => {
         resendBtn.textContent = 'Resending...';
 
         try {
+            console.log('🔄 Resending OTP...');
+            
+            // Clear current confirmation result
+            confirmationResult = null;
+            
             // Go back to step 1 to resend
             document.getElementById('phone-step-2').style.display = 'none';
             document.getElementById('phone-step-1').style.display = 'block';
-            setupRecaptcha();
-            showMessage('Please send OTP again', 'info');
+            
+            // Clear OTP input
+            const otpCodeInput = document.getElementById('otpCode');
+            if (otpCodeInput) otpCodeInput.value = '';
+            
+            // Setup new reCAPTCHA
+            setTimeout(() => {
+                setupRecaptcha();
+                showMessage('Please solve reCAPTCHA and send OTP again', 'info');
+            }, 500);
+            
         } finally {
             setLoadingState(resendBtn, false);
             resendBtn.textContent = 'Resend OTP';
