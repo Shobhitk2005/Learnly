@@ -590,3 +590,9 @@ body{
         color: #0c5460;
         border-color: #bee5eb;
     }
+
+    /* Highlight important messages with warning emoji */
+    .auth-message:contains("⚠️") {
+        border-left: 4px solid #f59e0b;
+        font-weight: 600;
+    }

@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Send verification email
                 await sendEmailVerification(user);
 
-                showMessage('Account created successfully! Please check your email for verification.', 'success');
+                showMessage('Account created successfully! Please check your email for verification. ⚠️ IMPORTANT: Check your SPAM/JUNK folder if you don\'t see the email in your inbox!', 'success');
 
                 // Clear form
                 document.getElementById('signupForm').reset();
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                   if (emailUrl) {
                     // Show message and redirect directly
-                    showMessage('Redirecting to your email... Please verify your email and then login.', 'info');
+                    showMessage('Redirecting to your email... Please verify your email and then login. ⚠️ IMPORTANT: Check your SPAM/JUNK folder if you don\'t see the email!', 'info');
                     
                     // Direct redirect to email provider
                     setTimeout(() => {
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 2000);
                   } else {
                     // For other providers, just show a generic message and switch to login
-                    showMessage('Please check your email inbox and spam folder for the verification email.', 'info');
+                    showMessage('Please check your email inbox for the verification email. ⚠️ IMPORTANT: Check your SPAM/JUNK folder if you don\'t see it!', 'info');
                     setTimeout(() => {
                       container.classList.remove('active'); // Switch to login form
                     }, 3000);
@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (response.ok) {
                         // Sign out the user after successful profile creation for Google signup
                         await auth.signOut();
-                        showMessage('Google signup successful! Please check your email for verification before logging in.', 'success');
+                        showMessage('Google signup successful! Please check your email for verification before logging in. ⚠️ IMPORTANT: Check your SPAM/JUNK folder if you don\'t see the email!', 'success');
 
                         // Switch to login form after 3 seconds
                         setTimeout(() => {
@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (response.ok) {
                         // Sign out the user after successful profile creation for Apple signup
                         await auth.signOut();
-                        showMessage('Apple ID signup successful! Please check your email for verification before logging in.', 'success');
+                        showMessage('Apple ID signup successful! Please check your email for verification before logging in. ⚠️ IMPORTANT: Check your SPAM/JUNK folder if you don\'t see the email!', 'success');
 
                         // Switch to login form after 3 seconds
                         setTimeout(() => {
@@ -976,7 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleCodeInApp: false
                 };
                 await sendPasswordResetEmail(auth, resetEmail, actionCodeSettings);
-                showMessage('Password reset email sent! Please check your inbox and spam folder.', 'success');
+                showMessage('Password reset email sent! Please check your inbox. ⚠️ IMPORTANT: Check your SPAM/JUNK folder if you don\'t see the email!', 'success');
                 passwordResetModal.style.display = 'none';
                 resetEmailField.value = '';
             } catch (error) {
@@ -1043,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleCodeInApp: true
             };
             await sendEmailVerification(window.pendingVerificationUser, actionCodeSettings);
-            showMessage('Verification email sent! Please check your inbox.', 'success');
+            showMessage('Verification email sent! Please check your inbox. ⚠️ IMPORTANT: Check your SPAM/JUNK folder if you don\'t see it!', 'success');
         } catch (error) {
             console.error('Error resending verification:', error);
             showMessage('Failed to resend verification email. Please try again.', 'error');
