@@ -177,35 +177,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Redirect to email provider for verification
                 setTimeout(() => {
                   const email = user.email;
-                  const emailDomain = email.split('@')[1];
-                  let emailUrl = 'https://mail.google.com'; // Default to Gmail
+                  const emailDomain = email.split('@')[1].toLowerCase();
+                  let emailUrl = null;
 
                   // Detect email provider and redirect accordingly
-                  if (emailDomain.includes('gmail')) {
-                    emailUrl = 'https://mail.google.com';
-                  } else if (emailDomain.includes('yahoo')) {
-                    emailUrl = 'https://mail.yahoo.com';
-                  } else if (emailDomain.includes('outlook') || emailDomain.includes('hotmail') || emailDomain.includes('live')) {
-                    emailUrl = 'https://outlook.live.com';
-                  } else if (emailDomain.includes('icloud')) {
-                    emailUrl = 'https://www.icloud.com/mail';
+                  if (emailDomain === 'gmail.com' || emailDomain.includes('gmail')) {
+                    emailUrl = 'https://mail.google.com/mail/u/0/#inbox';
+                  } else if (emailDomain === 'yahoo.com' || emailDomain.includes('yahoo')) {
+                    emailUrl = 'https://mail.yahoo.com/';
+                  } else if (emailDomain === 'outlook.com' || emailDomain === 'hotmail.com' || emailDomain === 'live.com' || emailDomain.includes('outlook') || emailDomain.includes('hotmail') || emailDomain.includes('live')) {
+                    emailUrl = 'https://outlook.live.com/mail/0/inbox';
+                  } else if (emailDomain === 'icloud.com' || emailDomain.includes('icloud')) {
+                    emailUrl = 'https://www.icloud.com/mail/';
+                  }
+
+                  if (emailUrl) {
+                    // Show message first
+                    showMessage('Opening your email... Please verify your email and then login.', 'info');
+                    
+                    // Try to open email provider in new tab
+                    try {
+                      const newWindow = window.open(emailUrl, '_blank', 'noopener,noreferrer');
+                      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                        // Popup was blocked, show fallback message
+                        console.log('Popup blocked, showing fallback message');
+                        showMessage('Please check your email inbox and spam folder for the verification email. Click here to open your email: ' + emailUrl, 'info');
+                      }
+                    } catch (error) {
+                      console.error('Error opening email:', error);
+                      showMessage('Please check your email inbox and spam folder for the verification email.', 'info');
+                    }
                   } else {
                     // For other providers, just show a generic message
                     showMessage('Please check your email inbox and spam folder for the verification email.', 'info');
-                    setTimeout(() => {
-                      container.classList.remove('active'); // Switch to login form
-                    }, 2000);
-                    return;
                   }
 
-                  // Open email provider in new tab
-                  window.open(emailUrl, '_blank');
-
-                  // Show message and switch to login after delay
-                  showMessage('Opening your email... Please verify your email and then login.', 'info');
+                  // Switch to login form after delay
                   setTimeout(() => {
                     container.classList.remove('active'); // Switch to login form
-                  }, 2000);
+                  }, 3000);
                 }, 1500);
 
             } catch (error) {
