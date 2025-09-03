@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ All required DOM elements found');
 
     // Helper function to show messages
-    function showMessage(message, type = 'info') {
+    function showMessage(message, type = 'error') {
         console.log(`📢 Showing ${type} message:`, message);
 
         const existingMessage = document.querySelector('.auth-message');
@@ -166,61 +166,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Send email verification and sign out user until verified
-                try {
-                    if (user.email) {
-                        await sendEmailVerification(user);
-                        console.log('✉️ Email verification sent to:', user.email);
-                        
-                        // Create profile first
-                        const profileData = {
-                            name: name,
-                            phone: '', // Explicitly set phone to empty string
-                            userType
-                        };
+                // Send verification email
+                await sendEmailVerification(user);
 
-                        const response = await fetch('/api/auth/create-profile', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${await user.getIdToken()}`
-                            },
-                            body: JSON.stringify(profileData)
-                        });
+                showMessage('Account created successfully! Please check your email for verification.', 'success');
 
-                        if (response.ok) {
-                            // Sign out the user after successful profile creation
-                            await auth.signOut();
-                            showMessage('Account created successfully! Please check your email for verification before logging in.', 'success');
-                            
-                            // Switch to login form after 3 seconds
-                            setTimeout(() => {
-                                container.classList.remove('active'); // Switch to login form
-                                document.getElementById('signupName').value = '';
-                                document.getElementById('signupEmail').value = '';
-                                document.getElementById('signupPassword').value = '';
-                            }, 3000);
-                        } else {
-                            try {
-                                await user.delete();
-                                console.log('🧹 Cleaned up Firebase user due to profile creation failure.');
-                            } catch (deleteError) {
-                                console.error('❌ Failed to delete Firebase user after profile creation failure:', deleteError);
-                            }
-                            throw new Error('Failed to create profile');
-                        }
-                    } else {
-                        throw new Error('Email verification failed - no email found');
-                    }
-                } catch (verificationError) {
-                    console.error('❌ Email verification error:', verificationError);
-                    try {
-                        await user.delete();
-                    } catch (deleteError) {
-                        console.error('❌ Failed to delete Firebase user:', deleteError);
-                    }
-                    throw new Error('Failed to send verification email');
-                }
+                // Clear form
+                document.getElementById('signupForm').reset();
+
+                // Redirect to email provider for verification
+                setTimeout(() => {
+                  const email = user.email;
+                  const emailDomain = email.split('@')[1];
+                  let emailUrl = 'https://mail.google.com'; // Default to Gmail
+
+                  // Detect email provider and redirect accordingly
+                  if (emailDomain.includes('gmail')) {
+                    emailUrl = 'https://mail.google.com';
+                  } else if (emailDomain.includes('yahoo')) {
+                    emailUrl = 'https://mail.yahoo.com';
+                  } else if (emailDomain.includes('outlook') || emailDomain.includes('hotmail') || emailDomain.includes('live')) {
+                    emailUrl = 'https://outlook.live.com';
+                  } else if (emailDomain.includes('icloud')) {
+                    emailUrl = 'https://www.icloud.com/mail';
+                  } else {
+                    // For other providers, just show a generic message
+                    showMessage('Please check your email inbox and spam folder for the verification email.', 'info');
+                    setTimeout(() => {
+                      container.classList.remove('active'); // Switch to login form
+                    }, 2000);
+                    return;
+                  }
+
+                  // Open email provider in new tab
+                  window.open(emailUrl, '_blank');
+
+                  // Show message and switch to login after delay
+                  showMessage('Opening your email... Please verify your email and then login.', 'info');
+                  setTimeout(() => {
+                    container.classList.remove('active'); // Switch to login form
+                  }, 2000);
+                }, 1500);
+
             } catch (error) {
                 console.error('❌ Signup error:', error);
                 let errorMessage = 'Signup failed. Please try again.';
@@ -382,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Sign out the user after successful profile creation for Google signup
                         await auth.signOut();
                         showMessage('Google signup successful! Please check your email for verification before logging in.', 'success');
-                        
+
                         // Switch to login form after 3 seconds
                         setTimeout(() => {
                             container.classList.remove('active'); // Switch to login form
@@ -495,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Sign out the user after successful profile creation for Apple signup
                         await auth.signOut();
                         showMessage('Apple ID signup successful! Please check your email for verification before logging in.', 'success');
-                        
+
                         // Switch to login form after 3 seconds
                         setTimeout(() => {
                             container.classList.remove('active'); // Switch to login form
@@ -579,25 +566,25 @@ document.addEventListener('DOMContentLoaded', () => {
     window.openPhoneModal = function(type) {
         console.log('📱 Opening phone modal for:', type);
         phoneAuthType = type;
-        
+
         // Reset modal state
         document.getElementById('phoneAuthModal').style.display = 'flex';
         document.getElementById('phone-step-1').style.display = 'block';
         document.getElementById('phone-step-2').style.display = 'none';
         document.getElementById('phone-step-3').style.display = 'none';
-        
+
         // Clear previous inputs
         const phoneNumberInput = document.getElementById('phoneNumber');
         const otpCodeInput = document.getElementById('otpCode');
         const phoneUserNameInput = document.getElementById('phoneUserName');
-        
+
         if (phoneNumberInput) phoneNumberInput.value = '';
         if (otpCodeInput) otpCodeInput.value = '';
         if (phoneUserNameInput) phoneUserNameInput.value = '';
-        
+
         // Reset confirmation result
         confirmationResult = null;
-        
+
         // Setup reCAPTCHA with a small delay to ensure DOM is ready
         setTimeout(() => {
             setupRecaptcha();
@@ -607,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.closePhoneModal = function() {
         console.log('❌ Closing phone modal and cleaning up');
         document.getElementById('phoneAuthModal').style.display = 'none';
-        
+
         // Clean up reCAPTCHA
         if (recaptchaVerifier) {
             try {
@@ -617,19 +604,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             recaptchaVerifier = null;
         }
-        
+
         // Clear confirmation result
         confirmationResult = null;
-        
+
         // Clear form inputs
         const phoneNumberInput = document.getElementById('phoneNumber');
         const otpCodeInput = document.getElementById('otpCode');
         const phoneUserNameInput = document.getElementById('phoneUserName');
-        
+
         if (phoneNumberInput) phoneNumberInput.value = '';
         if (otpCodeInput) otpCodeInput.value = '';
         if (phoneUserNameInput) phoneUserNameInput.value = '';
-        
+
         // Reset to first step
         document.getElementById('phone-step-1').style.display = 'block';
         document.getElementById('phone-step-2').style.display = 'none';
@@ -755,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 message: error.message,
                 stack: error.stack
             });
-            
+
             let errorMessage = 'Failed to send OTP. Please try again.';
 
             switch (error.code) {
@@ -793,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             showMessage(errorMessage, 'error');
-            
+
             // Reset reCAPTCHA for retry
             setTimeout(() => {
                 setupRecaptcha();
@@ -933,24 +920,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             console.log('🔄 Resending OTP...');
-            
+
             // Clear current confirmation result
             confirmationResult = null;
-            
+
             // Go back to step 1 to resend
             document.getElementById('phone-step-2').style.display = 'none';
             document.getElementById('phone-step-1').style.display = 'block';
-            
+
             // Clear OTP input
             const otpCodeInput = document.getElementById('otpCode');
             if (otpCodeInput) otpCodeInput.value = '';
-            
+
             // Setup new reCAPTCHA
             setTimeout(() => {
                 setupRecaptcha();
                 showMessage('Please solve reCAPTCHA and send OTP again', 'info');
             }, 500);
-            
+
         } finally {
             setLoadingState(resendBtn, false);
             resendBtn.textContent = 'Resend OTP';

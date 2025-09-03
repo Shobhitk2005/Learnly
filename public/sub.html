@@ -544,7 +544,7 @@
           </div>
           <!-- QR Code Section -->
           <div class="qr-code-container">
-            <img src="attached_assets/Qr.jpeg" alt="Learnly Payment QR Code">
+            <img id="paymentQR" src="attached_assets/Qr.jpeg" alt="Learnly Payment QR Code">
             <p>Scan to Pay</p>
           </div>
         </div>
@@ -678,6 +678,16 @@
       document.getElementById('planPrice').textContent = `₹${details.price}`;
       // Removed GST amount display
       document.getElementById('totalAmount').textContent = `₹${total}`;
+
+      // Update QR code based on plan
+      const qrImage = document.getElementById('paymentQR');
+      if (plan === 'yearly') {
+        qrImage.src = 'attached_assets/Qr_yearly.jpeg';
+        qrImage.alt = 'Learnly Yearly Plan Payment QR Code';
+      } else {
+        qrImage.src = 'attached_assets/Qr.jpeg';
+        qrImage.alt = 'Learnly Monthly Plan Payment QR Code';
+      }
 
       hideMessages();
       document.getElementById('paymentModal').style.display = 'flex';
