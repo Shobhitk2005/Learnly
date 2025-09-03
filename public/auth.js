@@ -166,47 +166,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Send email verification
+                // Send email verification and sign out user until verified
                 try {
                     if (user.email) {
                         await sendEmailVerification(user);
                         console.log('✉️ Email verification sent to:', user.email);
+                        
+                        // Create profile first
+                        const profileData = {
+                            name: name,
+                            phone: '', // Explicitly set phone to empty string
+                            userType
+                        };
+
+                        const response = await fetch('/api/auth/create-profile', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${await user.getIdToken()}`
+                            },
+                            body: JSON.stringify(profileData)
+                        });
+
+                        if (response.ok) {
+                            // Sign out the user after successful profile creation
+                            await auth.signOut();
+                            showMessage('Account created successfully! Please check your email for verification before logging in.', 'success');
+                            
+                            // Switch to login form after 3 seconds
+                            setTimeout(() => {
+                                container.classList.remove('active'); // Switch to login form
+                                document.getElementById('signupName').value = '';
+                                document.getElementById('signupEmail').value = '';
+                                document.getElementById('signupPassword').value = '';
+                            }, 3000);
+                        } else {
+                            try {
+                                await user.delete();
+                                console.log('🧹 Cleaned up Firebase user due to profile creation failure.');
+                            } catch (deleteError) {
+                                console.error('❌ Failed to delete Firebase user after profile creation failure:', deleteError);
+                            }
+                            throw new Error('Failed to create profile');
+                        }
+                    } else {
+                        throw new Error('Email verification failed - no email found');
                     }
                 } catch (verificationError) {
                     console.error('❌ Email verification error:', verificationError);
-                }
-
-                const profileData = {
-                    name: name,
-                    phone: '', // Explicitly set phone to empty string
-                    userType
-                };
-
-                const response = await fetch('/api/auth/create-profile', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${await user.getIdToken()}`
-                    },
-                    body: JSON.stringify(profileData)
-                });
-
-                if (response.ok) {
-                    localStorage.setItem('userToken', await user.getIdToken());
-                    localStorage.setItem('userType', userType);
-                    showMessage('Account created successfully! Please check your email for verification. Redirecting...', 'success');
-
-                    setTimeout(() => {
-                        redirectToDashboard(userType);
-                    }, 1500);
-                } else {
                     try {
                         await user.delete();
-                        console.log('🧹 Cleaned up Firebase user due to profile creation failure.');
                     } catch (deleteError) {
-                        console.error('❌ Failed to delete Firebase user after profile creation failure:', deleteError);
+                        console.error('❌ Failed to delete Firebase user:', deleteError);
                     }
-                    throw new Error('Failed to create profile');
+                    throw new Error('Failed to send verification email');
                 }
             } catch (error) {
                 console.error('❌ Signup error:', error);
@@ -263,62 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
-
-                // Reload user to get latest verification status
-                await user.reload();
-
-                // Check if email is verified before proceeding
-                if (!user.emailVerified) {
-                    // Create verification message with resend option
-                    const existingMessage = document.querySelector('.auth-message');
-                    if (existingMessage) {
-                        existingMessage.remove();
-                    }
-
-                    const messageEl = document.createElement('div');
-                    messageEl.className = 'auth-message error';
-                    messageEl.style.cssText = `
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        padding: 15px 20px;
-                        border-radius: 8px;
-                        color: white;
-                        font-weight: 600;
-                        z-index: 10000;
-                        max-width: 350px;
-                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                        background-color: #ef4444;
-                    `;
-
-                    messageEl.innerHTML = `
-                        <div>Please verify your email address first.</div>
-                        <button onclick="resendVerificationEmail()" style="
-                            background: rgba(255,255,255,0.2);
-                            border: 1px solid rgba(255,255,255,0.3);
-                            color: white;
-                            padding: 5px 10px;
-                            border-radius: 4px;
-                            margin-top: 8px;
-                            cursor: pointer;
-                            font-size: 12px;
-                        ">Resend Verification Email</button>
-                    `;
-
-                    document.body.appendChild(messageEl);
-
-                    // Store user for resend function
-                    window.pendingVerificationUser = user;
-
-                    setTimeout(() => {
-                        if (messageEl.parentNode) {
-                            messageEl.remove();
-                        }
-                    }, 10000);
-
-                    await auth.signOut(); // Sign out the user
-                    return;
-                }
 
                 const idToken = await user.getIdToken();
                 localStorage.setItem('userToken', idToken);
@@ -422,10 +379,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
 
                     if (response.ok) {
-                        localStorage.setItem('userToken', await user.getIdToken());
-                        localStorage.setItem('userType', userType);
-                        showMessage('Google signup successful! Please check your email for verification. Redirecting...', 'success');
-                        setTimeout(() => redirectToDashboard(userType), 1500);
+                        // Sign out the user after successful profile creation for Google signup
+                        await auth.signOut();
+                        showMessage('Google signup successful! Please check your email for verification before logging in.', 'success');
+                        
+                        // Switch to login form after 3 seconds
+                        setTimeout(() => {
+                            container.classList.remove('active'); // Switch to login form
+                        }, 3000);
                     } else {
                         try {
                             if (user) await user.delete();
@@ -531,10 +492,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
 
                     if (response.ok) {
-                        localStorage.setItem('userToken', await user.getIdToken());
-                        localStorage.setItem('userType', userType);
-                        showMessage('Apple ID signup successful! Please check your email for verification. Redirecting...', 'success');
-                        setTimeout(() => redirectToDashboard(userType), 1500);
+                        // Sign out the user after successful profile creation for Apple signup
+                        await auth.signOut();
+                        showMessage('Apple ID signup successful! Please check your email for verification before logging in.', 'success');
+                        
+                        // Switch to login form after 3 seconds
+                        setTimeout(() => {
+                            container.classList.remove('active'); // Switch to login form
+                        }, 3000);
                     } else {
                         try {
                             if (user) await user.delete();
@@ -688,6 +653,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 recaptchaContainer.innerHTML = '';
             }
 
+            console.log('🔧 Setting up reCAPTCHA with Firebase auth domain:', auth.app.options.authDomain);
+
             recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'normal',
                 'callback': (response) => {
@@ -726,12 +693,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }).catch(error => {
                 console.error('❌ reCAPTCHA render error:', error);
-                showMessage('reCAPTCHA failed to load. Please refresh the page and try again.', 'error');
+                console.error('Current window location:', window.location.href);
+                console.error('Firebase auth domain:', auth.app.options.authDomain);
+                showMessage('reCAPTCHA failed to load. Please make sure this domain is authorized in Firebase console.', 'error');
             });
 
         } catch (error) {
             console.error('❌ reCAPTCHA setup error:', error);
-            showMessage('Phone authentication is currently unavailable. Please use email signup instead.', 'error');
+            console.error('Current domain:', window.location.hostname);
+            showMessage('Phone authentication setup failed. Please contact support if this persists.', 'error');
         }
     }
 
@@ -766,6 +736,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('reCAPTCHA not initialized. Please refresh the page.');
             }
 
+            console.log('🔄 Attempting to send SMS to:', fullPhoneNumber);
+            console.log('🔧 Using Firebase project:', auth.app.options.projectId);
+            console.log('🔧 Auth domain:', auth.app.options.authDomain);
+
             confirmationResult = await signInWithPhoneNumber(auth, fullPhoneNumber, recaptchaVerifier);
             console.log('✅ OTP sent successfully to:', fullPhoneNumber);
 
@@ -776,6 +750,12 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('OTP sent successfully! Check your messages.', 'success');
         } catch (error) {
             console.error('❌ Error sending OTP:', error);
+            console.error('❌ Error details:', {
+                code: error.code,
+                message: error.message,
+                stack: error.stack
+            });
+            
             let errorMessage = 'Failed to send OTP. Please try again.';
 
             switch (error.code) {
@@ -795,13 +775,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     errorMessage = 'Phone number is required.';
                     break;
                 case 'auth/invalid-app-credential':
-                    errorMessage = 'App not properly configured for phone authentication.';
+                    errorMessage = 'App not properly configured for phone authentication. Please add this domain to Firebase console.';
+                    break;
+                case 'auth/unauthorized-domain':
+                    errorMessage = 'This domain is not authorized for phone authentication. Please add it to Firebase console under Authentication > Settings > Authorized domains.';
                     break;
                 default:
                     if (error.message.includes('reCAPTCHA')) {
                         errorMessage = 'reCAPTCHA verification required. Please solve the reCAPTCHA first.';
-                    } else if (error.message.includes('domain')) {
-                        errorMessage = 'Domain not authorized for phone authentication. Please contact support.';
+                    } else if (error.message.includes('domain') || error.message.includes('unauthorized')) {
+                        errorMessage = 'Domain not authorized. Please add your domain to Firebase console under Authentication > Settings > Authorized domains.';
+                    } else if (error.message.includes('quota')) {
+                        errorMessage = 'SMS quota exceeded. Please enable billing in Firebase console or try email signup.';
                     } else {
                         errorMessage = error.message || errorMessage;
                     }
