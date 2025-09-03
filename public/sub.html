@@ -434,6 +434,75 @@
       font-size: 1.1rem;
     }
 
+    /* Contact Options */
+    .contact-options {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px dashed #f97316;
+    }
+
+    .contact-options > p {
+      font-size: 1rem;
+      color: #9a3412;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .contact-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .contact-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      color: white;
+    }
+
+    .contact-btn.whatsapp {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+    }
+
+    .contact-btn.whatsapp:hover {
+      background: linear-gradient(135deg, #128c7e, #25d366);
+    }
+
+    .contact-btn.instagram {
+      background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    }
+
+    .contact-btn.instagram:hover {
+      background: linear-gradient(135deg, #fd1d1d, #833ab4, #fcb045);
+    }
+
+    .contact-btn.email {
+      background: linear-gradient(135deg, #ea4335, #fbbc05);
+    }
+
+    .contact-btn.email:hover {
+      background: linear-gradient(135deg, #fbbc05, #ea4335);
+    }
+
+    .contact-btn i {
+      font-size: 1.1rem;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .content-grid {
@@ -454,6 +523,23 @@
       .plan-section {
         flex-direction: column;
         gap: 20px;
+      }
+
+      .contact-links {
+        gap: 10px;
+      }
+
+      .contact-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+
+      .contact-btn span {
+        display: none;
+      }
+
+      .contact-btn i {
+        font-size: 1.2rem;
       }
     }
   </style>
@@ -546,6 +632,25 @@
           <div class="qr-code-container">
             <img id="paymentQR" src="attached_assets/Qr.jpeg" alt="Learnly Payment QR Code">
             <p>Scan to Pay</p>
+            
+            <!-- Contact Options -->
+            <div class="contact-options">
+              <p>Need help? Contact us:</p>
+              <div class="contact-links">
+                <a href="https://whatsapp.com/channel/0029VbBlACmIt5rxoupDSB13" target="_blank" class="contact-btn whatsapp">
+                  <i class="fab fa-whatsapp"></i>
+                  <span>WhatsApp</span>
+                </a>
+                <a href="https://www.instagram.com/learnly_web?igsh=MTg5YjU3anRvMGpreQ%3D%3D&utm_source=qr" target="_blank" class="contact-btn instagram">
+                  <i class="fab fa-instagram"></i>
+                  <span>Instagram</span>
+                </a>
+                <a href="mailto:support@learnly.com" class="contact-btn email">
+                  <i class="fas fa-envelope"></i>
+                  <span>Email</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
