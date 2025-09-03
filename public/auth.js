@@ -192,30 +192,20 @@ document.addEventListener('DOMContentLoaded', () => {
                   }
 
                   if (emailUrl) {
-                    // Show message first
-                    showMessage('Opening your email... Please verify your email and then login.', 'info');
+                    // Show message and redirect directly
+                    showMessage('Redirecting to your email... Please verify your email and then login.', 'info');
                     
-                    // Try to open email provider in new tab
-                    try {
-                      const newWindow = window.open(emailUrl, '_blank', 'noopener,noreferrer');
-                      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                        // Popup was blocked, show fallback message
-                        console.log('Popup blocked, showing fallback message');
-                        showMessage('Please check your email inbox and spam folder for the verification email. Click here to open your email: ' + emailUrl, 'info');
-                      }
-                    } catch (error) {
-                      console.error('Error opening email:', error);
-                      showMessage('Please check your email inbox and spam folder for the verification email.', 'info');
-                    }
+                    // Direct redirect to email provider
+                    setTimeout(() => {
+                      window.location.href = emailUrl;
+                    }, 2000);
                   } else {
-                    // For other providers, just show a generic message
+                    // For other providers, just show a generic message and switch to login
                     showMessage('Please check your email inbox and spam folder for the verification email.', 'info');
+                    setTimeout(() => {
+                      container.classList.remove('active'); // Switch to login form
+                    }, 3000);
                   }
-
-                  // Switch to login form after delay
-                  setTimeout(() => {
-                    container.classList.remove('active'); // Switch to login form
-                  }, 3000);
                 }, 1500);
 
             } catch (error) {
