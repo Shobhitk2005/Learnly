@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Direct redirect to email provider
                     setTimeout(() => {
                       window.location.href = emailUrl;
-                    }, 4000);
+                    }, 6000);
                   } else {
                     // For other providers, just show a generic message and switch to login
                     showMessage('Please check your email inbox and spam folder for the verification email. ⚠️ IMPORTANT: Check your SPAM folder if you don\'t see it!', 'info');
