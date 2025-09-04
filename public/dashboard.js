@@ -146,14 +146,20 @@ async function loadUserData() {
     }
 
     const idToken = await currentUser.getIdToken();
+    console.log('🔄 Fetching user profile with token...');
+    
     const response = await fetch('/api/auth/profile', {
       headers: {
-        'Authorization': `Bearer ${idToken}`
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json'
       }
     });
 
+    console.log('📡 Profile API response status:', response.status);
+
     if (response.ok) {
       const userData = await response.json();
+      console.log('✅ User profile loaded:', userData);
       window.userDataGlobal = userData;
       updateUserInfo(userData);
       displaySubscriptionStatus(userData);
@@ -162,8 +168,13 @@ async function loadUserData() {
     } else if (response.status === 401) {
       console.error('Unauthorized access, redirecting to login.');
       window.location.href = '/auth?type=student';
+    } else if (response.status === 404) {
+      console.warn('User profile not found, may need to create profile.');
+      // Try to create profile if it doesn't exist
+      await createUserProfileIfNeeded();
     } else {
-      console.warn('Failed to fetch user profile, using fallback data.');
+      const errorText = await response.text();
+      console.warn('Failed to fetch user profile:', response.status, errorText);
       const fallbackUserData = {
         name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Student',
         email: currentUser.email,
@@ -838,6 +849,43 @@ async function handleProfilePictureUpload(event) {
   } catch (error) {
     console.error('❌ Error uploading profile picture:', error);
     alert('Failed to upload profile picture. Please try again.');
+  }
+}
+
+// Create user profile if it doesn't exist
+async function createUserProfileIfNeeded() {
+  try {
+    console.log('🔄 Creating user profile...');
+    const idToken = await currentUser.getIdToken();
+    
+    // Get name from localStorage if available (stored during signup)
+    const storedUserName = localStorage.getItem('userName') || 
+                          currentUser.displayName || 
+                          currentUser.email?.split('@')[0] || 
+                          'Student';
+    
+    const response = await fetch('/api/auth/create-profile', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: storedUserName,
+        phone: currentUser.phoneNumber || '',
+        userType: 'student'
+      })
+    });
+
+    if (response.ok) {
+      console.log('✅ Profile created successfully');
+      // Reload user data after creating profile
+      setTimeout(() => loadUserData(), 1000);
+    } else {
+      console.error('❌ Failed to create profile:', await response.text());
+    }
+  } catch (error) {
+    console.error('❌ Error creating profile:', error);
   }
 }
 

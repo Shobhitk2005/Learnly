@@ -171,6 +171,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 showMessage('Account created successfully! Please check your email for verification. ⚠️ IMPORTANT: Check your SPAM folder if you don\'t see the email in your inbox!', 'success');
 
+                // Store user name in localStorage for later use
+                localStorage.setItem('userName', name);
+
+                // Create user profile in backend
+                try {
+                    const profileResponse = await fetch('/api/auth/create-profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${await user.getIdToken()}`
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            phone: '',
+                            userType: userType
+                        })
+                    });
+
+                    if (!profileResponse.ok) {
+                        console.warn('Profile creation failed, but user was created');
+                    } else {
+                        console.log('✅ User profile created successfully');
+                    }
+                } catch (profileError) {
+                    console.warn('Profile creation error:', profileError);
+                }
+
+
                 // Clear form
                 document.getElementById('signupForm').reset();
 

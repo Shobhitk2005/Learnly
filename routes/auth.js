@@ -51,15 +51,19 @@ router.post('/create-profile', verifyToken, async (req, res) => {
 // Get user profile
 router.get('/profile', verifyToken, async (req, res) => {
   try {
+    console.log('🔍 Fetching profile for user:', req.user.uid);
     const userDoc = await db.collection('users').doc(req.user.uid).get();
     
     if (!userDoc.exists) {
+      console.log('❌ User document not found for:', req.user.uid);
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json(userDoc.data());
+    const userData = userDoc.data();
+    console.log('✅ User profile found:', userData.name || userData.email);
+    res.json(userData);
   } catch (error) {
-    console.error('Error fetching profile:', error);
+    console.error('❌ Error fetching profile:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
