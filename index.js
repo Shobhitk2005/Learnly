@@ -14,7 +14,14 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 app.use('/attached_assets', express.static('attached_assets'));
 
-// Firebase config endpoint
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/user', require('./routes/user'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/payment', require('./routes/payment'));
+app.use('/api/course', require('./routes/course'));
+
+// Firebase config endpoint for client-side
 app.get('/api/firebase-config', (req, res) => {
   res.json({
     apiKey: process.env.FIREBASE_API_KEY,
@@ -25,12 +32,6 @@ app.get('/api/firebase-config', (req, res) => {
     appId: process.env.FIREBASE_APP_ID
   });
 });
-
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/user', require('./routes/user'));
-app.use('/api/payment', require('./routes/payment'));
-app.use('/api/admin', require('./routes/admin'));
 
 // Serve static files
 app.get('/', (req, res) => {
