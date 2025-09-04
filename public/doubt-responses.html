@@ -215,16 +215,17 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-        // Fetch Firebase config from server
-        let app;
-        try {
-            const response = await fetch('/api/firebase-config');
-            const firebaseConfig = await response.json();
-            app = initializeApp(firebaseConfig);
-        } catch (error) {
-            console.error('Error loading Firebase config:', error);
-            return;
-        }
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaL18Mt7-oWbWwXuy1j1ov6QepclsUkbU",
+            authDomain: "learnly-2c0fc.firebaseapp.com",
+            projectId: "learnly-2c0fc",
+            storageBucket: "learnly-2c0fc.firebasestorage.app",
+            messagingSenderId: "864247257392",
+            appId: "1:864247257392:web:faad461dd382d4ace3d0f5",
+            measurementId: "G-NQVCSEPJDH"
+        };
+
+        const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
         let currentUser = null;

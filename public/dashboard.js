@@ -1,32 +1,37 @@
-// Initialize Firebase and then dashboard
-initializeFirebase();
+// dashboard.js
+'use strict';
 
-// Initialize Firebase with config from server
-let auth, storage, app;
+// Firebase imports and initialization
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-async function initializeFirebase() {
-  try {
-    const response = await fetch('/api/firebase-config');
-    const firebaseConfig = await response.json();
+const firebaseConfig = {
+  apiKey: "AIzaSyDaL18Mt7-oWbWwXuy1j1ov6QepclsUkbU",
+  authDomain: "learnly-2c0fc.firebaseapp.com",
+  projectId: "learnly-2c0fc",
+  storageBucket: "learnly-2c0fc.firebasestorage.app",
+  messagingSenderId: "864247257392",
+  appId: "1:864247257392:web:faad461dd382d4ace3d0f5",
+  measurementId: "G-NQVCSEPJDH"
+};
 
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js');
-    const { getAuth } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js');
-    const { getStorage } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js');
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    storage = getStorage(app);
+let currentUser = null;
 
-    // Initialize the dashboard after Firebase is ready
-    initializeDashboard();
-  } catch (error) {
-    console.error('Error initializing Firebase:', error);
+// Auth state listener
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    console.log('✅ User authenticated:', user.email);
+    loadUserData();
+    loadRecentDoubts(); // Load recent doubts for recent activity section
+  } else {
+    console.log('❌ No user found, redirecting to auth');
+    window.location.href = '/auth?type=student';
   }
-}
-
-import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
-import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js';
-
+});
 
 /* =========================
    PARALLAX: element handles
@@ -117,7 +122,7 @@ if ('IntersectionObserver' in window && parallaxRoot) {
 /* =========================
    BOOTSTRAP
    ========================= */
-function initializeDashboard() {
+window.addEventListener('load', () => {
   // image load sanity check (kept from your code)
   const imgs = [hill1, hill2, hill3, hill4, hill5, tree, leaf, plant].filter(Boolean);
   imgs.forEach((img, i) => {
@@ -127,10 +132,7 @@ function initializeDashboard() {
   });
 
   setParallaxTransitionsOnce();
-
-  // Initialize the dashboard after Firebase is ready
-  checkAuthAndInitialize();
-}
+});
 
 /* =========================
    USER DATA / AUTH
@@ -420,12 +422,21 @@ function hideLoadingOverlay() {
 }
 
 // Initialize the dashboard
-// This is now called from initializeFirebase after Firebase is ready.
-// document.addEventListener('DOMContentLoaded', () => {
-//   console.log('✅ Dashboard loading...');
-//   initializeDashboard();
-// });
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ Dashboard loading...');
+  initializeDashboard();
+});
 
+// Initialize dashboard functionality
+function initializeDashboard() {
+  setupNavigation();
+  setupLogoutButton();
+  setupActionButtons();
+  setupCardHoverEffects();
+  addDynamicEffects();
+  setupProfilePictureUpload();
+  hideLoadingOverlay();
+}
 
 // Setup navigation links
 function setupNavigation() {
@@ -764,13 +775,12 @@ async function loadProfileStatistics() {
 }
 
 // Handle profile picture upload
-// Removed the DOMContentLoaded listener here as initializeFirebase handles the initialization flow now.
-// document.addEventListener('DOMContentLoaded', function() {
-//   const profilePictureUpload = document.getElementById('profilePictureUpload');
-//   if (profilePictureUpload) {
-//     profilePictureUpload.addEventListener('change', handleProfilePictureUpload);
-//   }
-// });
+document.addEventListener('DOMContentLoaded', function() {
+  const profilePictureUpload = document.getElementById('profilePictureUpload');
+  if (profilePictureUpload) {
+    profilePictureUpload.addEventListener('change', handleProfilePictureUpload);
+  }
+});
 
 // Also set up the event listener when dashboard initializes
 function setupProfilePictureUpload() {
@@ -867,23 +877,4 @@ window.showSection = function(sectionId) {
       }
     };
 
-// Helper function to check authentication status and then initialize the dashboard
-function checkAuthAndInitialize() {
-  // This function is called after Firebase is initialized
-  console.log('✅ Checking authentication status...');
-  // For now, we assume the user is authenticated if they reach this page.
-  // A more robust check might involve checking Firebase auth state here.
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUser = user;
-      console.log('✅ User authenticated:', user.email);
-      loadUserData();
-      loadRecentDoubts(); // Load recent doubts for recent activity section
-    } else {
-      console.log('❌ No user found, redirecting to auth');
-      window.location.href = '/auth?type=student';
-    }
-  });
-}
-
-console.log('✅ Student Dashboard initialized (waiting for Firebase)');
+console.log('✅ Student Dashboard loaded successfully!');
