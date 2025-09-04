@@ -1,3 +1,25 @@
+// Initialize Firebase with config from server
+let auth, app;
+
+async function initializeFirebase() {
+  try {
+    const response = await fetch('/api/firebase-config');
+    const firebaseConfig = await response.json();
+
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js');
+    const { getAuth } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js');
+
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+
+    // Initialize admin dashboard after Firebase is ready
+    initializeAdmin();
+  } catch (error) {
+    console.error('Error initializing Firebase:', error);
+  }
+}
+
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js';
 
 let currentUser = null;
 let adminKey = null;
@@ -324,7 +346,7 @@ async function approvePayment(paymentId, approve) {
     const result = await response.json();
     console.log('✅ Payment processed successfully');
     alert(result.message);
-    
+
     // Reload both payments and users to show updated status
     loadPayments();
     loadUsers();
@@ -443,8 +465,10 @@ function refreshCurrentSection() {
   }
 }
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize Firebase and then admin
+initializeFirebase();
+
+function initializeAdmin() {
   console.log('✅ Admin panel loading...');
-  initializeAdmin();
-});
+  checkAuthAndLoadData();
+}
