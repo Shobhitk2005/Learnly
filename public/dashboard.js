@@ -165,7 +165,7 @@ async function loadUserData() {
     } else {
       console.warn('Failed to fetch user profile, using fallback data.');
       const fallbackUserData = {
-        name: currentUser.displayName || 'Student',
+        name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Student',
         email: currentUser.email,
         phoneNumber: currentUser.phoneNumber || 'Not provided',
         subscriptionStatus: 'inactive',
@@ -179,7 +179,7 @@ async function loadUserData() {
   } catch (error) {
     console.error('Error loading user data:', error);
     const fallbackUserData = {
-      name: currentUser?.displayName || 'Student',
+      name: currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Student',
       email: currentUser?.email || 'student@learnly.com',
       phoneNumber: 'Not provided',
       subscriptionStatus: 'inactive',
