@@ -217,7 +217,7 @@ function updateUserInfo(userData) {
 
   const name = userData.name || currentUser?.displayName || 'Student';
   const email = userData.email || currentUser?.email || 'student@learnly.com';
-  const phone = userData.phoneNumber || 'Not provided';
+  const phone = userData.phone || userData.phoneNumber || 'Not provided';
 
   if (elements.userName) elements.userName.textContent = name;
   if (elements.welcomeName) elements.welcomeName.textContent = name;
@@ -887,6 +887,92 @@ async function createUserProfileIfNeeded() {
     console.error('❌ Error creating profile:', error);
   }
 }
+
+// Phone number edit functions
+window.showEditPhoneModal = function() {
+  const modal = document.getElementById('editPhoneModal');
+  const currentPhone = document.getElementById('profilePhone').textContent;
+  
+  // Parse current phone number if it exists and isn't "Not provided"
+  if (currentPhone && currentPhone !== 'Not provided' && currentPhone !== 'Loading...') {
+    // Try to extract country code and number
+    let countryCode = '+91'; // default
+    let phoneNumber = currentPhone;
+    
+    if (currentPhone.startsWith('+')) {
+      const parts = currentPhone.match(/^(\+\d{1,3})\s*(.*)$/);
+      if (parts) {
+        countryCode = parts[1];
+        phoneNumber = parts[2];
+      }
+    }
+    
+    document.getElementById('editCountryCode').value = countryCode;
+    document.getElementById('editPhoneNumber').value = phoneNumber;
+  }
+  
+  modal.style.display = 'flex';
+};
+
+window.closeEditPhoneModal = function() {
+  const modal = document.getElementById('editPhoneModal');
+  modal.style.display = 'none';
+  document.getElementById('editPhoneNumber').value = '';
+};
+
+window.updatePhoneNumber = async function() {
+  const countryCode = document.getElementById('editCountryCode').value;
+  const phoneNumber = document.getElementById('editPhoneNumber').value.trim();
+  const updateBtn = document.getElementById('updatePhoneBtn');
+  
+  if (!phoneNumber) {
+    showMessage('Please enter a phone number', 'error');
+    return;
+  }
+  
+  // Basic phone number validation
+  const phoneRegex = /^[0-9]{6,15}$/;
+  if (!phoneRegex.test(phoneNumber)) {
+    showMessage('Please enter a valid phone number (6-15 digits)', 'error');
+    return;
+  }
+  
+  const fullPhoneNumber = countryCode + phoneNumber;
+  
+  try {
+    updateBtn.disabled = true;
+    updateBtn.textContent = 'Updating...';
+    
+    const idToken = await currentUser.getIdToken();
+    const response = await fetch('/api/auth/update-phone', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ phone: fullPhoneNumber })
+    });
+    
+    if (response.ok) {
+      showMessage('Phone number updated successfully!', 'success');
+      document.getElementById('profilePhone').textContent = fullPhoneNumber;
+      closeEditPhoneModal();
+      // Update global user data
+      if (window.userDataGlobal) {
+        window.userDataGlobal.phoneNumber = fullPhoneNumber;
+      }
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update phone number');
+    }
+  } catch (error) {
+    console.error('Error updating phone number:', error);
+    showMessage('Failed to update phone number. Please try again.', 'error');
+  } finally {
+    updateBtn.disabled = false;
+    updateBtn.textContent = 'Update Phone Number';
+  }
+};
 
 // Make functions available globally
 window.switchSection = switchSection;

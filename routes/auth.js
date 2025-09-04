@@ -68,4 +68,34 @@ router.get('/profile', verifyToken, async (req, res) => {
   }
 });
 
+// Update user phone number
+router.post('/update-phone', verifyToken, async (req, res) => {
+  try {
+    const { uid } = req.user;
+    const { phone } = req.body;
+    
+    if (!phone) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+    
+    // Basic phone validation
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({ error: 'Invalid phone number format' });
+    }
+    
+    await db.collection('users').doc(uid).update({
+      phone: phone,
+      phoneNumber: phone, // Keep both for compatibility
+      updatedAt: new Date()
+    });
+    
+    console.log('✅ Phone number updated for user:', uid);
+    res.json({ message: 'Phone number updated successfully' });
+  } catch (error) {
+    console.error('❌ Error updating phone number:', error);
+    res.status(500).json({ error: 'Failed to update phone number' });
+  }
+});
+
 module.exports = router;

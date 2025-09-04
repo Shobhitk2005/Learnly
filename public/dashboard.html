@@ -21,6 +21,133 @@
             font-size: 2em; /* Adjust icon size as needed */
             color: #fff; /* Example color, adjust as per your theme */
         }
+
+        /* Phone Modal Styles */
+        .phone-modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+            padding-top: 60px;
+        }
+
+        .phone-modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .phone-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .phone-modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-phone-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .close-phone-modal:hover,
+        .close-phone-modal:focus {
+            color: #f00;
+            text-decoration: none;
+        }
+
+        .phone-modal-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .phone-input-group {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .country-select {
+            padding: 10px;
+            border: none;
+            border-right: 1px solid #ccc;
+            background-color: #f9f9f9;
+            border-radius: 4px 0 0 4px;
+            appearance: none; /* Remove default dropdown arrow */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%3E%3Cpath%20d%3D%22M2%200l4%208%204-8%22%20fill%3D%22%23666%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px 8px;
+            cursor: pointer;
+        }
+
+        .phone-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-size: 1em;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .phone-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .phone-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Edit Button for Phone */
+        .edit-phone-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555;
+            margin-left: 10px;
+            font-size: 0.9em;
+        }
+        .edit-phone-btn i {
+            vertical-align: middle;
+        }
+        .edit-phone-btn:hover {
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -235,7 +362,13 @@
                             <div class="profile-info">
                                 <h2 id="profileName">Student Name</h2>
                                 <p id="profileEmail">student@example.com</p>
-                                <p id="profilePhone">+91 XXXXXXXXXX</p>
+                                <div class="profile-info-item">
+                                    <span class="info-label">Phone:</span>
+                                    <span class="info-value" id="profilePhone">+91 XXXXXXXXXX</span>
+                                    <button class="edit-phone-btn" onclick="showEditPhoneModal()">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
                                 <span class="user-badge">Student</span>
                             </div>
                         </div>
@@ -311,6 +444,28 @@
         <div class="loading-spinner">
             <i class="fas fa-spinner fa-spin"></i>
             <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Edit Phone Modal -->
+    <div id="editPhoneModal" class="phone-modal" style="display: none;">
+        <div class="phone-modal-content">
+            <div class="phone-modal-header">
+                <h2>Edit Phone Number</h2>
+                <button class="close-phone-modal" onclick="closeEditPhoneModal()">&times;</button>
+            </div>
+            <div class="phone-modal-body">
+                <div class="phone-input-group">
+                    <select id="editCountryCode" class="country-select">
+                        <option value="+91">🇮🇳 +91 (India)</option>
+                        <option value="+1">🇺🇸 +1 (USA)</option>
+                        <option value="+44">🇬🇧 +44 (UK)</option>
+                        <option value="+86">🇨🇳 +86 (China)</option>
+                    </select>
+                    <input type="tel" id="editPhoneNumber" placeholder="Enter phone number" class="phone-input">
+                </div>
+                <button id="updatePhoneBtn" class="phone-btn" onclick="updatePhoneNumber()">Update Phone Number</button>
+            </div>
         </div>
     </div>
 
