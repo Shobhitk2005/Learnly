@@ -166,13 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
+                // Store user name in localStorage for later use
+                localStorage.setItem('userName', name);
+
                 // Send verification email
                 await sendEmailVerification(user);
 
                 showMessage('Account created successfully! Please check your email for verification. ⚠️ IMPORTANT: Check your SPAM folder if you don\'t see the email in your inbox!', 'success');
-
-                // Store user name in localStorage for later use
-                localStorage.setItem('userName', name);
 
                 // Create user profile in backend
                 try {

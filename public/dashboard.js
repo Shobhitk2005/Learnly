@@ -861,7 +861,6 @@ async function createUserProfileIfNeeded() {
     // Get name from localStorage if available (stored during signup)
     const storedUserName = localStorage.getItem('userName') || 
                           currentUser.displayName || 
-                          currentUser.email?.split('@')[0] || 
                           'Student';
     
     const response = await fetch('/api/auth/create-profile', {
