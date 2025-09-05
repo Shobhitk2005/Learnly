@@ -19,7 +19,7 @@ if (!admin.apps.length) {
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'learnly-2c0fc.appspot.com'
+    storageBucket: 'learnly-2c0fc.appspot.com'
   });
 }
 

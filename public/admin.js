@@ -1,4 +1,3 @@
-
 let currentUser = null;
 let adminKey = null;
 
@@ -176,35 +175,43 @@ function displayPayments(payments) {
   }
 
   paymentsContainer.innerHTML = payments.map(payment => `
-    <div class="payment-card">
-      <h3>Payment #${payment.id}</h3>
-      <div class="payment-details">
-        <p><strong>User:</strong> ${payment.userName || 'N/A'}</p>
-        <p><strong>Email:</strong> ${payment.userEmail || 'N/A'}</p>
-        <p><strong>Phone:</strong> ${payment.userPhone || 'N/A'}</p>
-        <p><strong>Amount:</strong> ₹${payment.amount || 'N/A'}</p>
-        <p><strong>Payment Method:</strong> ${payment.paymentMethod || 'N/A'}</p>
-        ${payment.upiId ? `<p><strong>UPI ID:</strong> ${payment.upiId}</p>` : ''}
-        ${payment.transactionId ? `<p><strong>Transaction ID:</strong> ${payment.transactionId}</p>` : ''}
-        <p><strong>Status:</strong> 
-          <span class="status ${payment.approved === true ? 'approved' : (payment.approved === false ? 'rejected' : 'pending')}">
-            ${payment.approved === true ? 'Approved' : (payment.approved === false ? 'Rejected' : 'Pending')}
-          </span>
-        </p>
-        <p><strong>Submitted:</strong> ${payment.createdAt ? new Date(payment.createdAt).toLocaleDateString() : 'N/A'}</p>
-        ${payment.approvedAt ? `<p><strong>Approved:</strong> ${new Date(payment.approvedAt).toLocaleDateString()}</p>` : ''}
-        ${payment.rejectedAt ? `<p><strong>Rejected:</strong> ${new Date(payment.rejectedAt).toLocaleDateString()}</p>` : ''}
-      </div>
-      <div class="payment-actions">
-        ${payment.approved === null ? `
-          <button class="btn-approve" onclick="approvePayment('${payment.id}', true)">Approve</button>
-          <button class="btn-reject" onclick="approvePayment('${payment.id}', false)">Reject</button>
-        ` : ''}
-        ${payment.proofUrl ? `
-          <button class="btn-view" onclick="viewPaymentProof('${payment.proofUrl}')">View Proof</button>
-        ` : '<p class="no-proof">No proof uploaded</p>'}
-      </div>
-    </div>
+    <div class="payment-item">
+          <div class="payment-header">
+            <h3>💳 Payment #${payment.id.substring(0, 8)}</h3>
+            <span class="payment-status status-${payment.status || 'pending'}">${(payment.status || 'pending').toUpperCase()}</span>
+          </div>
+          <div class="payment-details">
+            <p><strong>👤 User:</strong> ${payment.userName || 'Unknown'} (${payment.userEmail || 'No email'})</p>
+            <p><strong>💰 Amount:</strong> ₹${payment.amount || 'N/A'}</p>
+            <p><strong>💳 Method:</strong> ${payment.paymentMethod || 'N/A'}</p>
+            <p><strong>📅 Date:</strong> ${payment.createdAt ? new Date(payment.createdAt).toLocaleString() : 'N/A'}</p>
+            ${payment.userPhone ? `<p><strong>📱 Phone:</strong> ${payment.userPhone}</p>` : ''}
+          </div>
+          <div class="payment-actions">
+            ${payment.proofUrl ? `
+              <div class="proof-container">
+                <img src="${payment.proofUrl}" alt="Payment Proof" class="payment-proof-img" 
+                     onclick="window.open('${payment.proofUrl}', '_blank')"
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIE5vdCBGb3VuZDwvdGV4dD48L3N2Zz4='; this.title='Image failed to load';">
+                <p class="proof-filename">📄 ${payment.proofImageName || 'payment-proof.jpg'}</p>
+                ${payment.uploadMethod ? `<small class="upload-method">Uploaded via: ${payment.uploadMethod}</small>` : ''}
+              </div>
+            ` : '<p class="no-proof">❌ No payment proof uploaded</p>'}
+
+            <div class="action-buttons">
+              <button class="approve-btn ${payment.approved === true ? 'approved' : ''}" 
+                      onclick="approvePayment('${payment.id}', true)"
+                      ${payment.approved === true ? 'disabled' : ''}>
+                ${payment.approved === true ? '✅ Approved' : '✅ Approve'}
+              </button>
+              <button class="reject-btn ${payment.approved === false ? 'rejected' : ''}" 
+                      onclick="approvePayment('${payment.id}', false)"
+                      ${payment.approved === false ? 'disabled' : ''}>
+                ${payment.approved === false ? '❌ Rejected' : '❌ Reject'}
+              </button>
+            </div>
+          </div>
+        </div>
   `).join('');
 }
 
@@ -324,7 +331,7 @@ async function approvePayment(paymentId, approve) {
     const result = await response.json();
     console.log('✅ Payment processed successfully');
     alert(result.message);
-    
+
     // Reload both payments and users to show updated status
     loadPayments();
     loadUsers();
@@ -341,8 +348,6 @@ function viewPaymentProof(proofUrl) {
     window.open(proofUrl, '_blank');
   } else {
     alert('No payment proof available');
-  }
-} available');
   }
 }
 
