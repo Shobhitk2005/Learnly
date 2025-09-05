@@ -1,0 +1,27 @@
+
+User-agent: *
+Allow: /
+Allow: /auth
+Allow: /dashboard
+Allow: /sub.html
+Allow: /connect-teacher.html
+Allow: /doubt-responses.html
+
+# Disallow admin and sensitive areas
+Disallow: /admin-2c9f7
+Disallow: /uploads/
+Disallow: /api/
+Disallow: /*.js$
+Disallow: /*.css$
+
+# Allow specific static assets
+Allow: /attached_assets/
+Allow: /style.css
+Allow: /auth.css
+Allow: /dashboard.css
+
+# Sitemap location
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
