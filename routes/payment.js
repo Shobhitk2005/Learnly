@@ -5,19 +5,9 @@ const path = require('path');
 const { admin, db, bucket } = require('../firebase');
 const router = express.Router();
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/payment-proofs/')
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'payment-proof-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
+// Configure multer for memory storage (temporary in-memory storage)
+const upload = multer({
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 2 * 1024 * 1024 // 2MB limit
   },
@@ -74,16 +64,62 @@ router.post('/upload-proof', verifyToken, (req, res, next) => {
       return res.status(400).json({ error: 'Plan and amount are required' });
     }
 
-    // Create payment record with proper proof URL
-    const proofUrl = `/uploads/payment-proofs/${req.file.filename}`;
+    // Generate unique filename
+    const timestamp = Date.now();
+    const randomString = Math.round(Math.random() * 1E9);
+    const fileExtension = path.extname(req.file.originalname);
+    const fileName = `payment-proof-${userId}-${timestamp}-${randomString}${fileExtension}`;
+    const filePath = `payment-proofs/${fileName}`;
+
+    // Upload to Firebase Storage
+    const file = bucket.file(filePath);
+    const stream = file.createWriteStream({
+      metadata: {
+        contentType: req.file.mimetype,
+        metadata: {
+          userId: userId,
+          uploadedAt: new Date().toISOString()
+        }
+      }
+    });
+
+    // Handle upload completion and errors
+    const uploadPromise = new Promise((resolve, reject) => {
+      stream.on('error', (error) => {
+        console.error('Firebase Storage upload error:', error);
+        reject(new Error('Failed to upload file to storage'));
+      });
+
+      stream.on('finish', async () => {
+        try {
+          // Make the file publicly accessible
+          await file.makePublic();
+          
+          // Get the public URL
+          const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+          resolve(publicUrl);
+        } catch (error) {
+          console.error('Error making file public:', error);
+          reject(new Error('Failed to make file public'));
+        }
+      });
+
+      // Write the file buffer to the stream
+      stream.end(req.file.buffer);
+    });
+
+    // Wait for upload to complete
+    const publicUrl = await uploadPromise;
+
+    // Create payment record with Firebase Storage URL
     const paymentData = {
       userId: userId,
       plan: plan,
       amount: parseFloat(amount),
       paymentMethod: paymentMethod || 'UPI',
-      proofUrl: proofUrl,
-      proofImagePath: req.file.path,
-      proofImageName: req.file.filename,
+      proofUrl: publicUrl,
+      proofImageName: fileName,
+      proofImagePath: filePath,
       status: 'pending',
       approved: null, // null = pending, true = approved, false = rejected
       createdAt: new Date(),
@@ -101,11 +137,13 @@ router.post('/upload-proof', verifyToken, (req, res, next) => {
     });
 
     console.log('✅ Payment proof uploaded successfully for user:', userId);
+    console.log('✅ File uploaded to Firebase Storage:', publicUrl);
 
     res.json({ 
       success: true, 
       message: 'Payment proof uploaded successfully. Please wait for admin approval.',
-      paymentId: paymentRef.id
+      paymentId: paymentRef.id,
+      proofUrl: publicUrl
     });
 
   } catch (error) {

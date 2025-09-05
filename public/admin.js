@@ -200,8 +200,8 @@ function displayPayments(payments) {
           <button class="btn-approve" onclick="approvePayment('${payment.id}', true)">Approve</button>
           <button class="btn-reject" onclick="approvePayment('${payment.id}', false)">Reject</button>
         ` : ''}
-        ${(payment.proofUrl || payment.proofImagePath) ? `
-          <button class="btn-view" onclick="viewPaymentProof('${payment.proofUrl || '/uploads/payment-proofs/' + payment.proofImageName}')">View Proof</button>
+        ${payment.proofUrl ? `
+          <button class="btn-view" onclick="viewPaymentProof('${payment.proofUrl}')">View Proof</button>
         ` : '<p class="no-proof">No proof uploaded</p>'}
       </div>
     </div>
@@ -337,11 +337,12 @@ async function approvePayment(paymentId, approve) {
 // View payment proof
 function viewPaymentProof(proofUrl) {
   if (proofUrl && proofUrl !== 'N/A') {
-    // If it's a relative URL, make it absolute
-    const fullUrl = proofUrl.startsWith('http') ? proofUrl : window.location.origin + proofUrl;
-    window.open(fullUrl, '_blank');
+    // Firebase Storage URLs already include the full domain
+    window.open(proofUrl, '_blank');
   } else {
     alert('No payment proof available');
+  }
+} available');
   }
 }
 
